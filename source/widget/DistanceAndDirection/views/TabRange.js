@@ -449,13 +449,13 @@ define([
                 if (this.rangeType.get('value') === 'Origin') {
                   ringInterval = dojoArray.map(tableRows, dojoLang.hitch(this, function (tr) {
                     var data = this.distanceTable.getRowData(tr);
-                    return data.value;
+                    return data.value.replace(',', '.');
                   }));
                 } else {
                   var totalDistance = 0;
                   ringInterval = dojoArray.map(tableRows, dojoLang.hitch(this, function (tr) {
                     var data = this.distanceTable.getRowData(tr);
-                    totalDistance = totalDistance + Number(data.value);
+                    totalDistance = totalDistance + Number(data.value.replace(',', '.'));
                     return totalDistance;
                   }));
                 }
@@ -517,11 +517,11 @@ define([
             if (params.ringInterval.constructor === Array) {
               for (i = 0; i < params.ringInterval.length; i++) {
                 params.ringInterval[i] = this.coordTool.inputCoordinate.util.convertToMeters(
-                  parseFloat(params.ringInterval[i].replace(',', '.')), params.ringIntervalUnitsDD);
+                  parseFloat(params.ringInterval[i]), params.ringIntervalUnitsDD);
               }
             } else {
               params.ringDistance = this.coordTool.inputCoordinate.util.convertToMeters(
-                parseFloat(params.ringInterval.replace(',', '.')), params.ringIntervalUnitsDD);
+                parseFloat(params.ringInterval), params.ringIntervalUnitsDD);
             }
           }
 
