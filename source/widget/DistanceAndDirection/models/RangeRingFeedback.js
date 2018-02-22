@@ -25,6 +25,7 @@ define([
   'esri/geometry/Circle',
   'esri/geometry/Polyline',
   'esri/geometry/geometryEngine',
+  'jimu/utils',
   './Feedback'
 ], function (
   dojoDeclare,
@@ -36,18 +37,19 @@ define([
   esriCircle,
   esriPolyline,
   esriGeometryEngine,
+  jimuUtils,
   drawFeedback
 ) {
-    var clz = dojoDeclare([drawFeedback], {
+var clz = dojoDeclare([drawFeedback], {
         /**
          *
          **/
-        constructor: function (map,coordTool) {
-            this.syncEvents();
-            this.inherited(arguments);
-            this.circlePoints = [];
+        constructor: function (args) {
+          dojoDeclare.safeMixin(this, args);
+          this.syncEvents();
+          this.circlePoints = [];
         },
-        
+
         /*
 
         */
@@ -56,28 +58,30 @@ define([
                 'manual-rangering-center-point-input',
                 dojoLang.hitch(this, this.onCenterPointManualInputHandler)
             );
-        
+
             dojoTopic.subscribe(
                 'clear-points',
                 dojoLang.hitch(this, this.clearPoints)
-            ); 
-        },
-        
+            );
+          },
+
         /*
         Handler for clearing out points
         */
         clearPoints: function (centerPoint) {
+          if (centerPoint) {
             this._points = [];
             this.map.graphics.clear();
+          }
         },
-        
+
         /**
          *
          **/
-        clearGraphics: function (evt) {
+        clearGraphics: function () {
             this.map.graphics.clear();
-        },
-        
+          },
+
         /*
         Handler for the manual input of a center point
         */
@@ -86,7 +90,7 @@ define([
             this._points.push(centerPoint.offset(0, 0));
             this.set('startPoint', this._points[0]);
             this.map.centerAt(centerPoint);
-        },
+          },
 
         /**
          *
@@ -94,7 +98,7 @@ define([
         _onClickHandler: function (evt) {
             var snapPoint;
             if (this.map.snappingManager) {
-                snapPoint = this.map.snappingManager._snappingPoint;
+              snapPoint = this.map.snappingManager._snappingPoint;
             }
 
             var start = snapPoint || evt.mapPoint;
@@ -102,56 +106,57 @@ define([
 
             this._points.push(start.offset(0, 0));
             if (this._points.length === 1) {
-                this.set('startPoint', this._points[0]);
+              this.set('startPoint', this._points[0]);
             }
             this.circlePoints.push(start.offset(0, 0));
 
             switch (this._geometryType) {
+              case esriDraw.POINT:
+                this._drawEnd(start.offset(0, 0));
+                this._setTooltipMessage(0);
+                break;
 
-                case esriDraw.POINT:
-                    this._drawEnd(start.offset(0, 0));
-                    this._setTooltipMessage(0);
-                    break;
+              case esriDraw.POLYLINE:
+                var pline = new esriPolyline({
+                    paths: [[[start.x, start.y], [start.x, start.y]]],
+                    spatialReference: map.spatialReference
+                  });
 
-                case esriDraw.POLYLINE:
-                    var pline = new esriPolyline({
-                        paths: [[[start.x, start.y], [start.x, start.y]]],
-                        spatialReference: map.spatialReference
-                    });
+                //var tgra = new esriGraphic(pline, this.lineSymbol);
+                this.lgraphic = new esriGraphic(pline, this.lineSymbol);
 
-                    //var tgra = new esriGraphic(pline, this.lineSymbol);
-                    this.lgraphic = new esriGraphic(pline, this.lineSymbol);
+                if (map.snappingManager) {
+                  map.snappingManager._setGraphic(this._graphic);
+                }
 
-                    if (map.snappingManager) {
-                        map.snappingManager._setGraphic(this._graphic);
-                    }
+                if (this._points.length > 1) {
+                  if (this.circleGraphic) {
+                    var circleGraphic = new esriGraphic(this.circleGraphic.geometry, this.fillSymbol);
+                    this.map.graphics.add(circleGraphic);
+                  }
+                }
 
-                    if (this._points.length > 1) {
-                        if (this.circleGraphic) {
-                            var circleGraphic = new esriGraphic(this.circleGraphic.geometry, this.fillSymbol);
-                            this.map.graphics.add(circleGraphic);
-                        }
-                    }
-
-                    if (this._points.length > 0) {
-                        if (!this._onMouseMoveHandler_connect) {
-                            this._onMouseMoveHandler_connect = dojoConnect.connect(this.map, 'onMouseMove', this._onMouseMoveHandler);
-                        }
-                        if (!this._onDoubleClickHandler_connect) {
-                            this._onDoubleClickHandler_connect = dojoConnect.connect(this.map, 'onDblClick', dojoLang.hitch(this, this._onDoubleClickHandler));
-                        }
-                    }
-                    break;
+                if (this._points.length > 0) {
+                  if (!this._onMouseMoveHandler_connect) {
+                    this._onMouseMoveHandler_connect =
+                      dojoConnect.connect(this.map, 'onMouseMove', this._onMouseMoveHandler);
+                  }
+                  if (!this._onDoubleClickHandler_connect) {
+                    this._onDoubleClickHandler_connect =
+                      dojoConnect.connect(this.map, 'onDblClick', dojoLang.hitch(this, this._onDoubleClickHandler));
+                  }
+                }
+                break;
             }
 
             this._setTooltipMessage(this._points.length);
             if (this._points.length > 1) {
-                var tooltip = this._tooltip;
-                if (tooltip) {
-                    tooltip.innerHTML = 'Double-click to finish drawing range rings';
-                }
+              var tooltip = this._tooltip;
+              if (tooltip) {
+                tooltip.innerHTML = jimuUtils.sanitizeHTML(this.nls.doubleClickEllipseMesage);
+              }
             }
-        },
+          },
 
         /**
          *
@@ -159,7 +164,7 @@ define([
         _onMouseMoveHandler: function (evt) {
             var snapPoint;
             if (this.map.snappingManager) {
-                snapPoint = this.map.snappingManager._snappingPoint;
+              snapPoint = this.map.snappingManager._snappingPoint;
             }
 
             var start = this._points[0];
@@ -177,56 +182,55 @@ define([
                 radius: length,
                 geodesic: true,
                 numberOfPoints: 360
-            });
+              });
 
             if (this.circleGraphic) {
-                this.map.graphics.remove(this.circleGraphic);
+              this.map.graphics.remove(this.circleGraphic);
             }
             circleGeometry = dojoLang.mixin(circleGeometry, {
                 distanceDirectionType: "military-tools-range-rings"
-            });
+              });
             this.circleGraphic = new esriGraphic(circleGeometry, this.fillSymbol);
             this.map.graphics.add(this.circleGraphic);
             //this.lgraphic.setGeometry(geom);
-        },
+          },
 
         /**
          *
          **/
-        _onDoubleClickHandler: function (evt) {
-            this.disconnectOnMouseMoveHandlers();            
+        _onDoubleClickHandler: function () {
+            this.disconnectOnMouseMoveHandlers();
             var points = dojoLang.clone(this.circlePoints);
             this.cleanup();
             this._clear();
             this._setTooltipMessage(0);
             var geom = dojoLang.mixin(this.circleGraphic.geometry, {
                 circlePoints: points
-            });
+              });
             this._drawEnd(geom);
-        },
-        
+          },
+
         /*
          *
          */
-        disconnectOnMouseMoveHandlers: function (evt) {
+        disconnectOnMouseMoveHandlers: function () {
             dojoConnect.disconnect(this._onMouseMoveHandler_connect);
             dojoConnect.disconnect(this._onDoubleClickHandler_connect);
             this._onDoubleClickHandler_connect = null;
-        },
+          },
 
         /*
          *
          */
-        cleanup: function (evt) {
+        cleanup: function () {
             for (var i = this.map.graphics.graphics.length - 1; 0 <= i ; i--) {
-                if (this.map.graphics.graphics[i].geometry.hasOwnProperty("distanceDirectionType")) {
-                    var circleGraphic = this.map.graphics.graphics[i];
-                    this.map.graphics.remove(circleGraphic);
-                }
+              if (this.map.graphics.graphics[i].geometry.hasOwnProperty("distanceDirectionType")) {
+                var circleGraphic = this.map.graphics.graphics[i];
+                this.map.graphics.remove(circleGraphic);
+              }
             }
             this.circlePoints = [];
-        }
-
-    });
-    return clz;
+          }
+      });
+return clz;
 });

@@ -1,54 +1,51 @@
 <div class="tabPanel" data-dojo-attach-point="circleContainer">
     <div class="controls">
-        
+
         <div class="controlGroup">
-            <label>Create Circle From</label>
+            <label>${nls.circleTitle}</label>
             <div class="controlItem">
                 <select style="width: 225px" data-dojo-type="dijit/form/Select" data-dojo-attach-point="creationType">
-                    <option value="Radius" selected="selected">Radius</option>
-                    <option value="Diameter">Diameter</option>
+                    <option value="Radius" selected="selected">${nls.radiusLabel}</option>
+                    <option value="Diameter">${nls.diameterLabel}</option>
                 </select>
             </div>
         </div>
 
         <div class="controlGroup">
-            <label data-dojo-attach-point="coordInputLabel">Center Point</label>
+            <label data-dojo-attach-point="coordInputLabel">${nls.centerPointLabel}/label>
             <div class="controlItem">
-                <input class="jimu-input coordInput" data-dojo-attach-point="startPointCoords" placeholder="Enter Coordinates" />
+                <input class="jimu-input coordInput" data-dojo-attach-point="startPointCoords" placeholder="${nls.startPointPlaceHolderLabel}" />
                 <div class="controlItem paddedLeft">
                   <div class='add-with-icon'>
-                    <span title="Format Input" class="jimu-icon jimu-icon-setting" data-dojo-attach-point="coordinateFormatButton"></span>
+                    <span title="${nls.formatInputLabel}" class="jimu-icon jimu-icon-setting" data-dojo-attach-point="coordinateFormatButton"></span>
                   </div>
                   <div class='add-with-icon'>
-                    <div title="Draw Circle" class="draw" data-dojo-attach-point="addPointBtn"></div>
+                    <div title="${nls.drawCircleLabel}" class="draw" data-dojo-attach-point="addPointBtn"></div>
                   </div>
                 </div>
             </div>
             <div class="controlGroup">
                 <input class="interactive-checkbox" type="checkbox" data-dojo-attach-point="interactiveCircle" />
-                <label data-dojo-attach-point="interactiveLabel">Create Circle Interactively</label>                
+                <label data-dojo-attach-point="interactiveLabel">${nls.createCircleInteractivelyLabel}</label>
             </div>
         </div>
 
         <div class="controlGroup">
-            <label data-dojo-attach-point="radiusDiameterLabel">Radius</label>
+            <label data-dojo-attach-point="radiusDiameterLabel">${nls.radiusLabel}</label>
             <div class="controlItem" data-dojo-attach-point="radiusInputDiv">
                 <input
                   data-dojo-type='dijit/form/NumberTextBox'
-                  required="true" value="1000" data-dojo-props="
-                  constraints: {min: 1},
-                  invalidMessage: 'Please enter a numeric value.',
-                  rangeMessage: 'Invalid radius or diameter'"
+                  required="true" value="1000" data-dojo-props="constraints: {min: 1}"
                   data-dojo-attach-point="radiusInput">
-                </input>            
-                
+                </input>
+
                 <select style="width: 100px" class="controlSpace noResize" data-dojo-type="dijit/form/Select" data-dojo-attach-point="lengthUnitDD">
-                    <option value="feet">Feet</option>
-                    <option value="kilometers">Kilometers</option>
-                    <option value="miles">Miles</option>
-                    <option value="meters" selected="selected">Meters</option>
-                    <option value="nautical-miles">Nautical Miles</option>
-                    <option value="yards">Yards</option>
+                    <option value="feet">${nls.units.feet}</option>
+                    <option value="kilometers">${nls.units.kilometers}</option>
+                    <option value="miles">${nls.units.miles}</option>
+                    <option value="meters" selected="selected">${nls.units.meters}</option>
+                    <option value="nautical-miles">${nls.units.nauticalMiles}</option>
+                    <option value="yards">${nls.units.yards}</option>
                 </select>
             </div>
         </div>
@@ -56,55 +53,51 @@
         <div class="controlGroup" data-dojo-attach-point='distCalcControlDiv'>
               <div data-dojo-attach-point='distCalcControl' data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Distance Calculator', open: false">
                 <div class="controlGroup">
-                    <label>Time<label>
+                    <label>${nls.timeLabel}<label>
                         <div class="controlItem">
                             <input style='width: 168px;'
                               data-dojo-type='dijit/form/NumberTextBox'
                               required="true" value="1" data-dojo-props="
-                              constraints: {min: 1},
-                              invalidMessage: 'Please enter a numeric value.',
-                              rangeMessage: 'Invalid time value'"
+                              constraints: {min: 1}"
                               data-dojo-attach-point="timeInput">
-                            </input> 
+                            </input>
                             <select class="controlSpace noResize" data-dojo-type="dijit/form/Select" data-dojo-attach-point="timeUnitDD">
-                                <option value="3600">Hours</option>
-                                <option value="60" selected="selected">Minutes</option>
-                                <option value="1">Seconds</option>
+                                <option value="3600">${nls.hoursLabel}</option>
+                                <option value="60" selected="selected">${nls.minutesLabel}</option>
+                                <option value="1">${nls.secondsLabel}</option>
                             </select>
                         </div>
                 </div>
                 <div class="controlGroup">
-                    <label>Rate<label>
+                    <label>${nls.rateLabel}<label>
                         <div class="controlItem">
                             <input style='width: 168px;'
                               data-dojo-type='dijit/form/NumberTextBox'
                               required="true" value="1" data-dojo-props="
-                              constraints: {min: 1},
-                              invalidMessage: 'Please enter a numeric value.',
-                              rangeMessage: 'Invalid distance value'"
+                              constraints: {min: 1}"
                               data-dojo-attach-point="distanceInput">
                             </input>
                             <select class="controlSpace noResize" data-dojo-type="dijit/form/Select" data-dojo-attach-point="distanceUnitDD">
-                                <option value="0.3048;1">Feet / second</option>
-                                <option value="0.3048;3600">Feet / hour</option>
-                                <option value="1000;1">Kilometers / second</option>
-                                <option value="1000;3600">Kilometers / hour</option>
-                                <option value="1;1" selected="selected">Meters / second</option>
-                                <option value="1;3600">Meters / hour</option>
-                                <option value="1609.344;1">Miles / second</option>
-                                <option value="1609.344;3600">Miles / hour</option>
-                                <option value="1852;1">Nautical Miles / second</option>
-                                <option value="1852;3600">Nautical Miles / hour</option>
+                                <option value="0.3048;1">${nls.feetSecondsLabel}</option>
+                                <option value="0.3048;3600">${nls.feetHourLabel}</option>
+                                <option value="1000;1">${nls.kmSecondLabel}</option>
+                                <option value="1000;3600">${nls.kmHourLabel}</option>
+                                <option value="1;1" selected="selected">${nls.metersSecondLabel}</option>
+                                <option value="1;3600">${nls.metersHourLabel}</option>
+                                <option value="1609.344;1">${nls.milesSecondLabel}</option>
+                                <option value="1609.344;3600">${nls.milesHourLabel}</option>
+                                <option value="1852;1">${nls.nauticalMilesSecondLabel}</option>
+                                <option value="1852;3600">${nls.nauticalMilesHourLabel}</option>
                             </select>
                         </div>
                 </div>
             </div>
         </div>
-        
+
         <div class="buttonContainer">
-          <div class='jimu-btn jimu-state-disabled' data-dojo-attach-point='okButton' data-dojo-attach-event="onclick: okButtonClicked">OK</div>
-          <div class='jimu-btn' data-dojo-attach-point='clearGraphicsButton'>Clear Graphics</div>
+          <div class='jimu-btn jimu-state-disabled' data-dojo-attach-point='okButton' data-dojo-attach-event="onclick: okButtonClicked">${nls.common.ok}</div>
+          <div class='jimu-btn' data-dojo-attach-point='clearGraphicsButton'>${nls.clearGraphicsLabel}</div>
         </div>
-      
+
     </div>
 </div>

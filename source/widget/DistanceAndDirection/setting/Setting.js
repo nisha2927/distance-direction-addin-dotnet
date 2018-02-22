@@ -16,34 +16,30 @@
 
 define([
   'dojo/_base/declare',
-  'dojo/_base/html',  
+  'dojo/_base/html',
   'dojo/_base/lang',
-  'dojo/_base/array',  
+  'dojo/_base/array',
   'dojo/_base/Color',
-  'dojo/dom-geometry',
   'dojo/query',
-  'dojo/dom',
-  
+
   'jimu/BaseWidgetSetting',
   'jimu/dijit/ColorPicker',
   'jimu/dijit/SimpleTable',
-  
+
   'dijit/form/NumberSpinner',
   'dijit/registry',
   'jimu/dijit/Message',
   'dijit/_WidgetsInTemplateMixin',
   'dijit/ColorPalette'
-   
+
 ],
-  function(
+  function (
     dojoDeclare,
-    dojoHTML,    
+    dojoHTML,
     dojoLang,
-    dojoArray,    
+    dojoArray,
     dojoColor,
-    dojoDomGeometry,
     dojoQuery,
-    dojoDom,
     jimuBaseWidgetSetting,
     jimuColorPicker,
     jimuTable,
@@ -51,16 +47,16 @@ define([
     dijitRegistry,
     dijitMessage,
     dijitWidgetsInTemplateMixin
-    ) {
+  ) {
 
     return dojoDeclare([jimuBaseWidgetSetting, dijitWidgetsInTemplateMixin], {
       baseClass: 'distance-and-direction-setting',
 
       startup: function () {
-      this.inherited(arguments);
-      var feedbackTableFields = [{
+        this.inherited(arguments);
+        var feedbackTableFields = [{
           name: 'showTab',
-          title: 'Show Tab',
+          title: this.nls.showTabLabel,
           width: '16%',
           type: 'checkbox',
           onChange: dojoLang.hitch(this, this._checkBoxChange),
@@ -72,12 +68,12 @@ define([
           hidden: true
         }, {
           name: 'feedbackShape',
-          title: 'Feedback Shape',
+          title: this.nls.feedbackShapeLabel,
           width: '28%',
           type: 'text'
         }, {
           name: 'lineColor',
-          title: 'Line Color',
+          title: this.nls.lineColorLabel,
           create: dojoLang.hitch(this, this._createColorPicker),
           setValue: dojoLang.hitch(this, this._setColorPicker),
           getValue: dojoLang.hitch(this, this._getColorPicker),
@@ -85,40 +81,40 @@ define([
           type: 'extension'
         }, {
           name: 'lineWidth',
-          title: 'Line Width',
+          title: this.nls.lineWidthLabel,
           create: dojoLang.hitch(this, this._createNumberSpinner),
           setValue: dojoLang.hitch(this, this._setNumberSpinnerValue),
           getValue: dojoLang.hitch(this, this._getNumberSpinnerValue),
           type: 'extension',
           width: '28%'
         }
-      ];
+        ];
 
-      var feedbackArgs = {
-        fields: feedbackTableFields,
-        selectable: true,
-        autoHeight: false
-      };
-      
-      this.displayFeedbackTable = new jimuTable(feedbackArgs);
-      this.displayFeedbackTable.placeAt(this.feedbackTable);
-      dojoHTML.setStyle(this.displayFeedbackTable.domNode, {
-        'height': '100%'
-      });
-        
-      var labelTableFields = [{
+        var feedbackArgs = {
+          fields: feedbackTableFields,
+          selectable: true,
+          autoHeight: false
+        };
+
+        this.displayFeedbackTable = new jimuTable(feedbackArgs);
+        this.displayFeedbackTable.placeAt(this.feedbackTable);
+        dojoHTML.setStyle(this.displayFeedbackTable.domNode, {
+          'height': '100%'
+        });
+
+        var labelTableFields = [{
           name: 'index',
           title: 'index',
           type: 'text',
           hidden: true
         }, {
           name: 'feedbackLabel',
-          title: 'Feedback Label',
+          title: this.nls.feedbackLabel,
           width: '44%',
           type: 'text'
         }, {
           name: 'textColor',
-          title: 'Text Color',
+          title: this.nls.textColorLabel,
           create: dojoLang.hitch(this, this._createColorPicker),
           setValue: dojoLang.hitch(this, this._setColorPicker),
           getValue: dojoLang.hitch(this, this._getColorPicker),
@@ -126,130 +122,118 @@ define([
           type: 'extension'
         }, {
           name: 'textSize',
-          title: 'Text Size',
+          title: this.nls.textSizeLabel,
           create: dojoLang.hitch(this, this._createTextNumberSpinner),
           setValue: dojoLang.hitch(this, this._setNumberSpinnerValue),
           getValue: dojoLang.hitch(this, this._getNumberSpinnerValue),
           type: 'extension',
           width: '28%'
         }
-      ];
-      
-      var labelArgs = {
-        fields: labelTableFields,
-        selectable: true,
-        autoHeight: false
-      };
-      
-      this.displayLabelTable = new jimuTable(labelArgs);
-      this.displayLabelTable.placeAt(this.labelTable);
-      dojoHTML.setStyle(this.displayLabelTable.domNode, {
-        'height': '100%'
-      });
-      
-        
-      this.setConfig(this.config);
-    },
-    
-    
-      postCreate: function(){
-          
-        },
-      
-          
-      _createColorPicker: function(td) {
+        ];
+
+        var labelArgs = {
+          fields: labelTableFields,
+          selectable: true,
+          autoHeight: false
+        };
+
+        this.displayLabelTable = new jimuTable(labelArgs);
+        this.displayLabelTable.placeAt(this.labelTable);
+        dojoHTML.setStyle(this.displayLabelTable.domNode, {
+          'height': '100%'
+        });
+        this.setConfig(this.config);
+      },
+
+      _createColorPicker: function (td) {
         var colorPicker = new jimuColorPicker();
-        colorPicker.placeAt(td);      
+        colorPicker.placeAt(td);
       },
-      
-      _getColorPicker: function(td) {
-        return dijitRegistry.byId(td.childNodes[0].id).getColor();      
+
+      _getColorPicker: function (td) {
+        return dijitRegistry.byId(td.childNodes[0].id).getColor();
       },
-      
-      _setColorPicker: function(td, color) {
-        dijitRegistry.byId(td.childNodes[0].id).setColor(new dojoColor(color));      
+
+      _setColorPicker: function (td, color) {
+        dijitRegistry.byId(td.childNodes[0].id).setColor(new dojoColor(color));
       },
-      
-      _createNumberSpinner: function(td) {
+
+      _createNumberSpinner: function (td) {
         var numberSpinner = new dijitNumberSpinner({
           value: 2,
           smallDelta: 1,
-          constraints: { min:1, max:10, places:0 },
+          constraints: { min: 1, max: 10, places: 0 },
           style: "width:100px"
-        });  
+        });
         numberSpinner.placeAt(td);
       },
-      
-      _createTextNumberSpinner: function(td) {
+
+      _createTextNumberSpinner: function (td) {
         var numberSpinner = new dijitNumberSpinner({
           value: 12,
           smallDelta: 1,
-          constraints: { min:1, max:36, places:0 },
+          constraints: { min: 1, max: 36, places: 0 },
           style: "width:100px"
-        });  
+        });
         numberSpinner.placeAt(td);
       },
-      
-      _getNumberSpinnerValue: function(td) {
-        return dojoQuery('.dijitInputInner', td)[0].value;        
+
+      _getNumberSpinnerValue: function (td) {
+        return dojoQuery('.dijitInputInner', td)[0].value;
       },
-      
-      _setNumberSpinnerValue: function(td, value) {
+
+      _setNumberSpinnerValue: function (td, value) {
         dojoQuery('.dijitInputInner', td)[0].value = value;
       },
 
-      setTextSymbol: function () {
-        console.log('Set Text Symbol');
-      },
+      setConfig: function (config) {
 
-      setConfig: function(config){
-        
         var feedbacks = [
-             {shape: 'Line'},
-             {shape: 'Circle'},
-             {shape: 'Ellipse'},
-             {shape: 'Rings'}
-           ];
-           
-        var configSettings = [{
-            showTab: config.feedback.lineSymbol.showTab,
-            color: config.feedback.lineSymbol.color,
-            width: config.feedback.lineSymbol.width
-          }, {
-            showTab: config.feedback.circleSymbol.showTab,
-            color: config.feedback.circleSymbol.outline.color,
-            width: config.feedback.circleSymbol.outline.width
-          }, {
-            showTab: config.feedback.ellipseSymbol.showTab,
-            color: config.feedback.ellipseSymbol.outline.color,
-            width: config.feedback.ellipseSymbol.outline.width
-          }, {
-            showTab: config.feedback.rangeRingSymbol.showTab,
-            color: config.feedback.rangeRingSymbol.color,
-            width: config.feedback.rangeRingSymbol.width
-          }, {
-            color: config.feedback.labelSymbol.color,
-            width: config.feedback.labelSymbol.font.size
-          }
+          { shape: 'Line' },
+          { shape: 'Circle' },
+          { shape: 'Ellipse' },
+          { shape: 'Rings' }
         ];
-        
+
+        var configSettings = [{
+          showTab: config.feedback.lineSymbol.showTab,
+          color: config.feedback.lineSymbol.color,
+          width: config.feedback.lineSymbol.width
+        }, {
+          showTab: config.feedback.circleSymbol.showTab,
+          color: config.feedback.circleSymbol.outline.color,
+          width: config.feedback.circleSymbol.outline.width
+        }, {
+          showTab: config.feedback.ellipseSymbol.showTab,
+          color: config.feedback.ellipseSymbol.outline.color,
+          width: config.feedback.ellipseSymbol.outline.width
+        }, {
+          showTab: config.feedback.rangeRingSymbol.showTab,
+          color: config.feedback.rangeRingSymbol.color,
+          width: config.feedback.rangeRingSymbol.width
+        }, {
+          color: config.feedback.labelSymbol.color,
+          width: config.feedback.labelSymbol.font.size
+        }
+        ];
+
         this._setFeedbackTable(feedbacks, configSettings);
-        
-        this.displayLabelTable.clear();        
-        
+
+        this.displayLabelTable.clear();
+
         this.displayLabelTable.addRow({
-          feedbackLabel: 'Feedback Label',
+          feedbackLabel: this.nls.feedbackLabel,
           index: "0",
           textColor: configSettings[4].color,
           textSize: configSettings[4].width
         });
-        
+
       },
-      
+
       /*
       **
       */
-      _setFeedbackTable:function(feedbacks, configSettings){
+      _setFeedbackTable: function (feedbacks, configSettings) {
         this.displayFeedbackTable.clear();
         for (var i = 0; i < feedbacks.length; i++) {
           var rowData = {
@@ -260,24 +244,24 @@ define([
             lineWidth: configSettings[i].width
           };
           this.displayFeedbackTable.addRow(rowData);
-        };
+        }
       },
 
-      getConfig: function(){
-        
+      getConfig: function () {
+
         var feedbackData = this.displayFeedbackTable.getData();
         var labelData = this.displayLabelTable.getData();
-        
+
         var allTabsFalse = 0;
-        
-        dojoArray.forEach(feedbackData, function(tData) {
+
+        dojoArray.forEach(feedbackData, function (tData) {
           if (tData.showTab) {
             allTabsFalse = allTabsFalse + 1;
           }
         });
-        
-        
-        if(allTabsFalse != 0){
+
+
+        if (allTabsFalse !== 0) {
           this.config.feedback = {
             lineSymbol: {
               showTab: feedbackData[0].showTab,
@@ -290,7 +274,7 @@ define([
               showTab: feedbackData[1].showTab,
               type: 'esriSFS',
               style: 'esriSFSNull',
-              color: [255,0,0,0],
+              color: [255, 0, 0, 0],
               outline: {
                 color: feedbackData[1].lineColor,
                 width: feedbackData[1].lineWidth,
@@ -302,7 +286,7 @@ define([
               showTab: feedbackData[2].showTab,
               type: 'esriSFS',
               style: 'esriSFSNull',
-              color: [255,0,0,0],
+              color: [255, 0, 0, 0],
               outline: {
                 color: feedbackData[2].lineColor,
                 width: feedbackData[2].lineWidth,
@@ -318,26 +302,26 @@ define([
               width: feedbackData[3].lineWidth
             },
             labelSymbol: {
-              'type' : 'esriTS',
-              'color' : labelData[0].textColor,
-              'verticalAlignment' : 'middle',
-              'horizontalAlignment' : 'center',
-              'xoffset' : 0,
-              'yoffset' : 0,
-              'kerning' : true,
-              'font' : {
-                'family' : 'arial',
-                'size' : labelData[0].textSize,
-                'style' : 'normal',
-                'weight' : 'normal',
-                'decoration' : 'none'
+              'type': 'esriTS',
+              'color': labelData[0].textColor,
+              'verticalAlignment': 'middle',
+              'horizontalAlignment': 'center',
+              'xoffset': 0,
+              'yoffset': 0,
+              'kerning': true,
+              'font': {
+                'family': 'arial',
+                'size': labelData[0].textSize,
+                'style': 'normal',
+                'weight': 'normal',
+                'decoration': 'none'
               }
             }
           };
           return this.config;
         } else {
           new dijitMessage({
-            message: 'The widget must be configured with at least one tab shown'
+            message: this.nls.tabErrorMessage
           });
           return false;
         }

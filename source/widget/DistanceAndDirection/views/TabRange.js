@@ -13,17 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////
-
 /*global define*/
 define([
   'dojo/_base/declare',
   'dojo/_base/lang',
   'dojo/_base/array',
   'dojo/on',
-  'dojo/dom-attr',
   'dojo/dom-class',
   'dojo/topic',
-  'dojo/_base/html',
   'dojo/string',
   'dojo/mouse',
   'dojo/keys',
@@ -34,6 +31,7 @@ define([
   'dijit/popup',
   'jimu/dijit/Message',
   'jimu/LayerInfos/LayerInfos',
+  'jimu/utils',
   'dijit/_WidgetsInTemplateMixin',
   'dojo/text!../templates/TabRange.html',
   'esri/geometry/Circle',
@@ -60,10 +58,8 @@ define([
   dojoLang,
   dojoArray,
   dojoOn,
-  dojoDomAttr,
   dojoDomClass,
   dojoTopic,
-  dojoHTML,
   dojoString,
   dojoMouse,
   dojoKeys,
@@ -74,6 +70,7 @@ define([
   DijitPopup,
   Message,
   jimuLayerInfos,
+  jimuUtils,
   dijitWidgetsInTemplate,
   templateStr,
   EsriCircle,
@@ -92,487 +89,506 @@ define([
   EditOutputCoordinate,
   DrawFeedBack
 ) {
-    'use strict';
+  'use strict';
   return dojoDeclare([dijitWidgetBase, dijitTemplatedMixin, dijitWidgetsInTemplate], {
-    templateString: templateStr,
-    baseClass: 'jimu-widget-TabRange',
+      templateString: templateStr,
+      baseClass: 'jimu-widget-TabRange',
 
-    startPoint: null,
-    
-    _setStartPointAttr: function () {
-      this._set('startPoint');
-    },
-    _getStartPointAttr: function () {
-      return this.startPoint;
-    },
+      startPoint: null,
 
-    /*
-     * class constructor
-     */
-    constructor: function (args) {
-      dojoDeclare.safeMixin(this, args);
-    },
+      _setStartPointAttr: function () {
+        this._set('startPoint');
+      },
+      _getStartPointAttr: function () {
+        return this.startPoint;
+      },
 
-    /*
-     * dijit post create
-     */
-    postCreate: function () {      
-      this._ptSym = new EsriSimpleMarkerSymbol(this.pointSymbol);
-      this._circleSym = new EsriSimpleFillSymbol(this.circleSymbol);
-      this._lineSym = new EsriSimpleLineSymbol(this.lineSymbol);
-      this._labelSym = new EsriTextSymbol(this.labelSymbol);
+      /*
+       * class constructor
+       */
+      constructor: function (args) {
+        dojoDeclare.safeMixin(this, args);
+      },
 
-      this.map.addLayer(this.getLayer());
-      
-      //must ensure the layer is loaded before we can access it to turn on the labels
-      if(this._gl.loaded){
-        var featureLayerInfo = jimuLayerInfos.getInstanceSync().getLayerInfoById('Distance & Direction - Range Graphics');
-        featureLayerInfo.showLabels();
-        featureLayerInfo.enablePopup();
-      } else {
-        this._gl.on("load", dojoLang.hitch(this, function () {
-          var featureLayerInfo = jimuLayerInfos.getInstanceSync().getLayerInfoById('Distance & Direction - Range Graphics');
+      /*
+       * dijit post create
+       */
+      postCreate: function () {
+        this._ptSym = new EsriSimpleMarkerSymbol(this.pointSymbol);
+        this._circleSym = new EsriSimpleFillSymbol(this.circleSymbol);
+        this._lineSym = new EsriSimpleLineSymbol(this.lineSymbol);
+        this._labelSym = new EsriTextSymbol(this.labelSymbol);
+
+        this.map.addLayer(this.getLayer());
+
+        //must ensure the layer is loaded before we can access it to turn on the labels
+        if (this._gl.loaded) {
+          var featureLayerInfo =
+            jimuLayerInfos.getInstanceSync().getLayerInfoById('Distance & Direction - Range Graphics');
           featureLayerInfo.showLabels();
           featureLayerInfo.enablePopup();
-        }));
-      }
+        } else {
+          this._gl.on("load", dojoLang.hitch(this, function () {
+            var featureLayerInfo =
+              jimuLayerInfos.getInstanceSync().getLayerInfoById('Distance & Direction - Range Graphics');
+            featureLayerInfo.showLabels();
+            featureLayerInfo.enablePopup();
+          }));
+        }
 
-      this.coordTool = new CoordInput({appConfig: this.appConfig}, this.rangeCenter);
-      
-      this.coordTool.inputCoordinate.formatType = 'DD';
+        this.coordTool = new CoordInput({ appConfig: this.appConfig, nls: this.nls }, this.rangeCenter);
 
-      this.coordinateFormat = new DijitTooltipDialog({
-        content: new EditOutputCoordinate(),
-        style: 'width: 400px'
-      });
-      
-      if(this.appConfig.theme.name === 'DartTheme')
-      {
-        dojoDomClass.add(this.coordinateFormat.domNode, 'dartThemeClaroDijitTooltipContainerOverride');
-      }
+        this.coordTool.inputCoordinate.formatType = 'DD';
 
-      // add extended toolbar
-      this.dt = new DrawFeedBack(this.map,this.coordTool.inputCoordinate.util);
-      this.dt.setFillSymbol(this._circleSym);
-      this.dt.set('lengthLayer', this._lengthLayer);
+        this.coordinateFormat = new DijitTooltipDialog({
+          content: new EditOutputCoordinate({ nls: this.nls }),
+          style: 'width: 400px'
+        });
 
-      this.syncEvents();
-      
-      var rowData = {
-        value:'Double click to add value'
-      };
-      this.distanceTable.addRow(rowData);
-      
-      this.checkValidInputs();
-    },
-    
-    /*
-     * upgrade graphicslayer so we can use the label params
-     */
-    getLayer: function () {
-      if (!this._gl) {
-        var layerDefinition = {
-          'geometryType': 'esriGeometryPolyline',
-          'extent': {
-            'xmin': 0,
-            'ymin': 0,
-            'xmax': 0,
-            'ymax': 0,
-            'spatialReference': {
+        if (this.appConfig.theme.name === 'DartTheme') {
+          dojoDomClass.add(this.coordinateFormat.domNode, 'dartThemeClaroDijitTooltipContainerOverride');
+        }
+
+        // add extended toolbar
+        this.dt = new DrawFeedBack({
+          map: this.map,
+          coordTool: this.coordTool.inputCoordinate.util,
+          nls: this.nls
+        });
+        this.dt.setFillSymbol(this._circleSym);
+        this.dt.set('lengthLayer', this._lengthLayer);
+
+        this.syncEvents();
+
+        var rowData = {
+          value: 'Double click to add value'
+        };
+        this.distanceTable.addRow(rowData);
+
+        this.checkValidInputs();
+
+        this.numRingsInput.invalidMessage = this.nls.ringsErrorMessage;
+        this.numRingsInput.rangeMessage = this.nls.numericInvalidMessage;
+
+        this.numRadialsInput.invalidMessage = this.nls.radialsErrorMessage;
+        this.numRadialsInput.rangeMessage = this.nls.numericInvalidMessage;
+      },
+
+      /*
+       * upgrade graphicslayer so we can use the label params
+       */
+      getLayer: function () {
+        if (!this._gl) {
+          var layerDefinition = {
+            'geometryType': 'esriGeometryPolyline',
+            'extent': {
+              'xmin': 0,
+              'ymin': 0,
+              'xmax': 0,
+              'ymax': 0,
+              'spatialReference': {
                 'wkid': 102100,
                 'latestWkid': 102100
-            }
-        },
-          'objectIdField': 'ObjectID',
-          'fields': [
-            {
-              "name": "ObjectID",
-              "alias": "ObjectID",
-              "type": "esriFieldTypeOID"
-            },{
-              'name': 'Interval',
-              'type': 'esriFieldTypeString',
-              'alias': 'Interval'
-            }
-          ]
-        };
+              }
+            },
+            'objectIdField': 'ObjectID',
+            'fields': [
+              {
+                "name": "ObjectID",
+                "alias": "ObjectID",
+                "type": "esriFieldTypeOID"
+              }, {
+                'name': 'Interval',
+                'type': 'esriFieldTypeString',
+                'alias': 'Interval'
+              }
+            ]
+          };
 
-        var lblexp = {'labelExpressionInfo': {'value': '{Interval}'}};
-        var lblClass = new EsriLabelClass(lblexp);
-        lblClass.labelPlacement = 'center-end';
-        lblClass.symbol = this._labelSym;
-        //lblClass.where = 'Interval > 0';
+          var lblexp = { 'labelExpressionInfo': { 'value': '{Interval}' } };
+          var lblClass = new EsriLabelClass(lblexp);
+          lblClass.labelPlacement = 'center-end';
+          lblClass.symbol = this._labelSym;
+          //lblClass.where = 'Interval > 0';
 
-        var fs = new EsriFeatureSet();
+          var fs = new EsriFeatureSet();
 
-        var featureCollection = {
-          layerDefinition: layerDefinition,
-          featureSet: fs
-        };
+          var featureCollection = {
+            layerDefinition: layerDefinition,
+            featureSet: fs
+          };
 
-        this._gl = new EsriFeatureLayer(featureCollection, {
-          id: 'Distance & Direction - Range Graphics',
-          showLabels: true
-        });
+          this._gl = new EsriFeatureLayer(featureCollection, {
+            id: 'Distance & Direction - Range Graphics',
+            showLabels: true
+          });
 
-        this._gl.setLabelingInfo([lblClass]);
+          this._gl.setLabelingInfo([lblClass]);
 
-        return this._gl;
-      }
-    },
+          return this._gl;
+        }
+      },
 
-    /*
-     * Start up event listeners
-     */
-    syncEvents: function () {      
-      //commented out as we want the graphics to remain when the widget is closed
-      /*dojoTopic.subscribe('DD_WIDGET_OPEN',dojoLang.hitch(this, this.setGraphicsShown));
-      dojoTopic.subscribe('DD_WIDGET_CLOSE',dojoLang.hitch(this, this.setGraphicsHidden));*/
-      dojoTopic.subscribe('TAB_SWITCHED', dojoLang.hitch(this, this.tabSwitched));
+      /*
+       * Start up event listeners
+       */
+      syncEvents: function () {
+        //commented out as we want the graphics to remain when the widget is closed
+        /*dojoTopic.subscribe('DD_WIDGET_OPEN',dojoLang.hitch(this, this.setGraphicsShown));
+        dojoTopic.subscribe('DD_WIDGET_CLOSE',dojoLang.hitch(this, this.setGraphicsHidden));*/
+        dojoTopic.subscribe('TAB_SWITCHED', dojoLang.hitch(this, this.tabSwitched));
 
-      this.dt.watch('startPoint', dojoLang.hitch(this, function (r, ov, nv) {
-        this.coordTool.inputCoordinate.set('coordinateEsriGeometry', nv);
-        this.dt.addStartGraphic(nv, this._ptSym);
-      }));
-
-      this.coordTool.inputCoordinate.watch('outputString', dojoLang.hitch(this, function (r, ov, nv) {
-        if(!this.coordTool.manualInput){this.coordTool.set('value', nv);}
-      }));
-
-      this.own(
-        dojoOn(this.coordTool, 'keyup',dojoLang.hitch(this, this.coordToolKeyWasPressed)),
-        
-        this.dt.on('draw-complete',dojoLang.hitch(this, this.feedbackDidComplete)),
-        
-        dojoOn(this.rangeType, 'change',dojoLang.hitch(this, this.rangeTypeDropDownChanged)),
-        
-        dojoOn(this.ringIntervalUnitsDD, 'change',dojoLang.hitch(this, this.ringIntervalUnitsDidChange)),
-        
-        dojoOn(this.coordinateFormatButton, 'click',dojoLang.hitch(this, this.coordinateFormatButtonWasClicked)),
-        
-        dojoOn(this.addPointBtn, 'click',dojoLang.hitch(this, this.pointButtonWasClicked)),
-        
-        dojoOn(this.coordinateFormat.content.applyButton, 'click', dojoLang.hitch(this, function () {
-          var fs = this.coordinateFormat.content.formats[this.coordinateFormat.content.ct];
-          var cfs = fs.defaultFormat;
-          var fv = this.coordinateFormat.content.frmtSelect.get('value');
-          if (fs.useCustom) {
-              cfs = fs.customFormat;
-          }
-          this.coordTool.inputCoordinate.set(
-            'formatPrefix',
-            this.coordinateFormat.content.addSignChkBox.checked
-          );
-          this.coordTool.inputCoordinate.set('formatString', cfs);
-          this.coordTool.inputCoordinate.set('formatType', fv);
-          this.setCoordLabel(fv);
-
-          DijitPopup.close(this.coordinateFormat);
-        })),
-        
-        dojoOn(this.coordinateFormat.content.cancelButton, 'click', dojoLang.hitch(this, function () {
-          DijitPopup.close(this.coordinateFormat);
-        })),
-
-        dojoOn(this.clearGraphicsButton,'click',dojoLang.hitch(this, this.clearGraphics)),
-        
-        dojoOn(this.numRingsDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
-        
-        dojoOn(this.ringIntervalDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
-        
-        dojoOn(this.numRadialsInputDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
-        
-        dojoOn(this.btnAddDistance, 'click', dojoLang.hitch(this, this.addDistance))
-      );            
-    },
-
-    /*
-     *
-     */
-    setCoordLabel: function (toType) {
-      this.rangeCenterLabel.innerHTML = dojoString.substitute(
-        'Center Point (${crdType})', {
-            crdType: toType
-        });
-    },
-
-    /*
-    * Range Type dropdown changed
-    */
-    rangeTypeDropDownChanged: function () {
-      this.tabSwitched();
-      switch(this.rangeType.get('value')) {
-        case 'Interactive':
-          dojoDomClass.add(this.numRingsContainer, 'controlGroupHidden');
-          dojoDomClass.add(this.distancebetweenRingsContainer, 'controlGroupHidden');
-          dojoDomClass.add(this.distanceTableContainer, 'controlGroupHidden');
-          dojoDomClass.remove(this.distanceUnitsContainer, 'controlGroupHidden');
-          break;
-        case 'Fixed':
-          dojoDomClass.remove(this.numRingsContainer, 'controlGroupHidden');
-          dojoDomClass.remove(this.distancebetweenRingsContainer, 'controlGroupHidden');
-          dojoDomClass.add(this.distanceUnitsContainer, 'controlGroupHidden');
-          dojoDomClass.add(this.distanceTableContainer, 'controlGroupHidden');
-          break;
-        case 'Origin':
-        case 'Cumulative':
-          dojoDomClass.add(this.numRingsContainer, 'controlGroupHidden');
-          dojoDomClass.add(this.distancebetweenRingsContainer, 'controlGroupHidden');
-          dojoDomClass.remove(this.distanceUnitsContainer, 'controlGroupHidden');
-          dojoDomClass.remove(this.distanceTableContainer, 'controlGroupHidden');
-          break;
-      } 
-      this.checkValidInputs();
-    },    
-    
-    /*
-     * catch key press in start point
-     */
-    coordToolKeyWasPressed: function (evt) {
-      this.dt.removeStartGraphic();
-      if (evt.keyCode === dojoKeys.ENTER) {
-        this.coordTool.inputCoordinate.getInputType().then(dojoLang.hitch(this, function (r) {
-          if(r.inputType == "UNKNOWN"){
-            var alertMessage = new Message({
-              message: 'Unable to determine input coordinate type please check your input.'
-            });
-            this.coordTool.inputCoordinate.coordinateEsriGeometry = null;
-            this.checkValidInputs();
-          } else {
-            dojoTopic.publish(
-              'manual-rangering-center-point-input',
-              this.coordTool.inputCoordinate.coordinateEsriGeometry
-            );
-            this.setCoordLabel(r.inputType);
-            var fs = this.coordinateFormat.content.formats[r.inputType];
-            this.coordTool.inputCoordinate.set('formatString', fs.defaultFormat);
-            this.coordTool.inputCoordinate.set('formatType', r.inputType);
-            this.dt.addStartGraphic(r.coordinateEsriGeometry, this._ptSym);
-            this.checkValidInputs();
-          }
+        this.dt.watch('startPoint', dojoLang.hitch(this, function (r, ov, nv) {
+          r = ov = null;
+          this.coordTool.inputCoordinate.set('coordinateEsriGeometry', nv);
+          this.dt.addStartGraphic(nv, this._ptSym);
         }));
-      }
-    },
 
-    /*
-     *
-     */
-    coordinateFormatButtonWasClicked: function () {
-      this.coordinateFormat.content.set('ct', this.coordTool.inputCoordinate.formatType);
-      DijitPopup.open({
+        this.coordTool.inputCoordinate.watch('outputString', dojoLang.hitch(this, function (r, ov, nv) {
+          r = ov = null;
+          if (!this.coordTool.manualInput) { this.coordTool.set('value', nv); }
+        }));
+
+        this.own(
+          dojoOn(this.coordTool, 'keyup', dojoLang.hitch(this, this.coordToolKeyWasPressed)),
+
+          this.dt.on('draw-complete', dojoLang.hitch(this, this.feedbackDidComplete)),
+
+          dojoOn(this.rangeType, 'change', dojoLang.hitch(this, this.rangeTypeDropDownChanged)),
+
+          dojoOn(this.ringIntervalUnitsDD, 'change', dojoLang.hitch(this, this.ringIntervalUnitsDidChange)),
+
+          dojoOn(this.coordinateFormatButton, 'click', dojoLang.hitch(this, this.coordinateFormatButtonWasClicked)),
+
+          dojoOn(this.addPointBtn, 'click', dojoLang.hitch(this, this.pointButtonWasClicked)),
+
+          dojoOn(this.coordinateFormat.content.applyButton, 'click', dojoLang.hitch(this, function () {
+            var fs = this.coordinateFormat.content.formats[this.coordinateFormat.content.ct];
+            var cfs = fs.defaultFormat;
+            var fv = this.coordinateFormat.content.frmtSelect.get('value');
+            if (fs.useCustom) {
+              cfs = fs.customFormat;
+            }
+            this.coordTool.inputCoordinate.set(
+              'formatPrefix',
+              this.coordinateFormat.content.addSignChkBox.checked
+            );
+            this.coordTool.inputCoordinate.set('formatString', cfs);
+            this.coordTool.inputCoordinate.set('formatType', fv);
+            this.setCoordLabel(fv);
+
+            DijitPopup.close(this.coordinateFormat);
+          })),
+
+          dojoOn(this.coordinateFormat.content.cancelButton, 'click', dojoLang.hitch(this, function () {
+            DijitPopup.close(this.coordinateFormat);
+          })),
+
+          dojoOn(this.clearGraphicsButton, 'click', dojoLang.hitch(this, this.clearGraphics)),
+
+          dojoOn(this.numRingsDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
+
+          dojoOn(this.ringIntervalDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
+
+          dojoOn(this.numRadialsInputDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
+
+          dojoOn(this.btnAddDistance, 'click', dojoLang.hitch(this, this.addDistance))
+        );
+      },
+
+      /*
+       *
+       */
+      setCoordLabel: function (toType) {
+        this.rangeCenterLabel.innerHTML = jimuUtils.sanitizeHTML(dojoString.substitute(
+          this.nls.centerPointLabel + ' (${crdType})', {
+            crdType: toType
+          }
+        ));
+      },
+
+      /*
+      * Range Type dropdown changed
+      */
+      rangeTypeDropDownChanged: function () {
+        this.tabSwitched();
+        switch (this.rangeType.get('value')) {
+          case 'Interactive':
+            dojoDomClass.add(this.numRingsContainer, 'controlGroupHidden');
+            dojoDomClass.add(this.distancebetweenRingsContainer, 'controlGroupHidden');
+            dojoDomClass.add(this.distanceTableContainer, 'controlGroupHidden');
+            dojoDomClass.remove(this.distanceUnitsContainer, 'controlGroupHidden');
+            break;
+          case 'Fixed':
+            dojoDomClass.remove(this.numRingsContainer, 'controlGroupHidden');
+            dojoDomClass.remove(this.distancebetweenRingsContainer, 'controlGroupHidden');
+            dojoDomClass.add(this.distanceUnitsContainer, 'controlGroupHidden');
+            dojoDomClass.add(this.distanceTableContainer, 'controlGroupHidden');
+            break;
+          case 'Origin':
+          case 'Cumulative':
+            dojoDomClass.add(this.numRingsContainer, 'controlGroupHidden');
+            dojoDomClass.add(this.distancebetweenRingsContainer, 'controlGroupHidden');
+            dojoDomClass.remove(this.distanceUnitsContainer, 'controlGroupHidden');
+            dojoDomClass.remove(this.distanceTableContainer, 'controlGroupHidden');
+            break;
+        }
+        this.checkValidInputs();
+      },
+
+      /*
+       * catch key press in start point
+       */
+      coordToolKeyWasPressed: function (evt) {
+        this.dt.removeStartGraphic();
+        if (evt.keyCode === dojoKeys.ENTER) {
+          this.coordTool.inputCoordinate.getInputType().then(dojoLang.hitch(this, function (r) {
+            if (r.inputType === "UNKNOWN") {
+              new Message({
+                message: this.nls.invalidCoordinateTypeMessage
+              });
+              this.coordTool.inputCoordinate.coordinateEsriGeometry = null;
+              this.checkValidInputs();
+            } else {
+              dojoTopic.publish(
+                'manual-rangering-center-point-input',
+                this.coordTool.inputCoordinate.coordinateEsriGeometry
+              );
+              this.setCoordLabel(r.inputType);
+              var fs = this.coordinateFormat.content.formats[r.inputType];
+              this.coordTool.inputCoordinate.set('formatString', fs.defaultFormat);
+              this.coordTool.inputCoordinate.set('formatType', r.inputType);
+              this.dt.addStartGraphic(r.coordinateEsriGeometry, this._ptSym);
+              this.checkValidInputs();
+            }
+          }));
+        }
+      },
+
+      /*
+       *
+       */
+      coordinateFormatButtonWasClicked: function () {
+        this.coordinateFormat.content.set('ct', this.coordTool.inputCoordinate.formatType);
+        DijitPopup.open({
           popup: this.coordinateFormat,
           around: this.coordinateFormatButton
-      });
-    },
+        });
+      },
 
-    /*
-     * Button click event, activate feedback tool
-     */
-    pointButtonWasClicked: function () {
-      this.coordTool.manualInput = false;
-      dojoTopic.publish('clear-points');
-      this.map.disableMapNavigation();
-      if (this.rangeType.get('value') === 'Interactive') {
+      /*
+       * Button click event, activate feedback tool
+       */
+      pointButtonWasClicked: function () {
+        this.coordTool.manualInput = false;
+        dojoTopic.publish('clear-points');
+        this.map.disableMapNavigation();
+        if (this.rangeType.get('value') === 'Interactive') {
           this.dt.activate('polyline');
-      } else {
+        } else {
           this.dt.activate('point');
-      }
-      dojoDomClass.toggle(this.addPointBtn, 'jimu-state-active');      
-    },
+        }
+        dojoDomClass.toggle(this.addPointBtn, 'jimu-state-active');
+      },
 
-    /*
-     *
-     */
-    ringIntervalUnitsDidChange: function () {
-      this.ringIntervalUnit = this.ringIntervalUnitsDD.get('value');
-    },      
-    
-    /*
-     *
-     */
-    okButtonClicked: function (evt) {
-      // validate input
-      if(!dojoDomClass.contains(this.okButton, "jimu-state-disabled")) {       
+      /*
+       *
+       */
+      ringIntervalUnitsDidChange: function () {
+        this.ringIntervalUnit = this.ringIntervalUnitsDD.get('value');
+      },
+
+      /*
+       *
+       */
+      okButtonClicked: function () {
+        // validate input
+        if (!dojoDomClass.contains(this.okButton, "jimu-state-disabled")) {
           var numRings;
           var ringInterval;
           var ringIntervalUnits;
-          
-          switch(this.rangeType.get('value')) {            
+
+          switch (this.rangeType.get('value')) {
             case 'Fixed':
               ringInterval = this.ringIntervalInput.get('value');
               numRings = this.numRingsInput.get('value');
               ringIntervalUnits = this.ringIntervalUnitsDD.get('value');
               break;
-            case 'Origin':              
+            case 'Origin':
             case 'Cumulative':
               ringIntervalUnits = this.distanceUnitsDD.get('value');
-              if(this.checkTableValues()) {
+              if (this.checkTableValues()) {
                 var tableRows = this.distanceTable.getRows();
-                if(this.rangeType.get('value') === 'Origin') {
-                  ringInterval = dojoArray.map(tableRows, dojoLang.hitch(this, function(tr) {
+                if (this.rangeType.get('value') === 'Origin') {
+                  ringInterval = dojoArray.map(tableRows, dojoLang.hitch(this, function (tr) {
                     var data = this.distanceTable.getRowData(tr);
-                    return data.value;          
+                    return data.value;
                   }));
                 } else {
                   var totalDistance = 0;
-                  ringInterval = dojoArray.map(tableRows, dojoLang.hitch(this, function(tr) {
+                  ringInterval = dojoArray.map(tableRows, dojoLang.hitch(this, function (tr) {
                     var data = this.distanceTable.getRowData(tr);
                     totalDistance = totalDistance + Number(data.value);
-                    return totalDistance;          
+                    return totalDistance;
                   }));
-                }                
+                }
               } else {
-                var alertMessage = new Message({
-                  message: 'Distance table is empty or contains invalid values. Please ensure all distances are numeric.'
+                new Message({
+                  message: this.nls.distanceTableErrorMessage
                 });
                 return;
               }
               break;
           }
           var params = {
-                  centerPoint: this.dt.get('startPoint') || this.coordTool.inputCoordinate.coordinateEsriGeometry,
-                  numRings: numRings,
-                  numRadials: this.numRadialsInput.get('value'),
-                  radius: 0,
-                  circle: null,
-                  circles: [],
-                  lastCircle: null,
-                  r: 0,
-                  c: 0,
-                  radials: 0,
-                  ringInterval: ringInterval,
-                  ringIntervalUnitsDD: ringIntervalUnits,
-                  circleSym: this._circleSym
-              };
-              this.createRangeRings(params);
+            centerPoint: this.dt.get('startPoint') || this.coordTool.inputCoordinate.coordinateEsriGeometry,
+            numRings: numRings,
+            numRadials: this.numRadialsInput.get('value'),
+            radius: 0,
+            circle: null,
+            circles: [],
+            lastCircle: null,
+            r: 0,
+            c: 0,
+            radials: 0,
+            ringInterval: ringInterval,
+            ringIntervalUnitsDD: ringIntervalUnits,
+            circleSym: this._circleSym
+          };
+          this.createRangeRings(params);
           this.coordTool.clear();
-      }
-    },
-
-    checkTableValues: function () {
-      var tableRows = this.distanceTable.getRows();
-      var invalidValue = [];
-      if(tableRows.length < 1) {
-        invalidValue.push(true);
-      } else {
-        invalidValue = dojoArray.map(tableRows, dojoLang.hitch(this, function(tr) {
-          var data = this.distanceTable.getRowData(tr);
-          return isNaN(data.value);          
-        }));
-      }
-      return invalidValue.indexOf(true) === -1;
-    },
-
-    /*
-     *
-     */
-    createRangeRings: function (params) {
-      if(params.centerPoint)
-      {
-        if (params.centerPoint.spatialReference.wkid !== this.map.spatialReference.wkid) {
-          params.centerPoint = EsriWMUtils.geographicToWebMercator(
-            params.centerPoint
-          );
         }
-        
-        if (params.ringInterval && params.ringIntervalUnitsDD) {
-          if(params.ringInterval.constructor === Array) {
-            for (i = 0; i < params.ringInterval.length; i++) {
-              params.ringInterval[i] = this.coordTool.inputCoordinate.util.convertToMeters(parseFloat(params.ringInterval[i]), params.ringIntervalUnitsDD);  
-            }            
-          } else {
-            params.ringDistance = this.coordTool.inputCoordinate.util.convertToMeters(parseFloat(params.ringInterval), params.ringIntervalUnitsDD);
+      },
+
+      checkTableValues: function () {
+        var tableRows = this.distanceTable.getRows();
+        var invalidValue = [];
+        if (tableRows.length < 1) {
+          invalidValue.push(true);
+        } else {
+          invalidValue = dojoArray.map(tableRows, dojoLang.hitch(this, function (tr) {
+            var data = this.distanceTable.getRowData(tr);
+            return isNaN(data.value);
+          }));
+        }
+        return invalidValue.indexOf(true) === -1;
+      },
+
+      /*
+       *
+       */
+      createRangeRings: function (params) {
+        if (params.centerPoint) {
+          if (params.centerPoint.spatialReference.wkid !== this.map.spatialReference.wkid) {
+            params.centerPoint = EsriWMUtils.geographicToWebMercator(
+              params.centerPoint
+            );
           }
-        }
 
-        this.dt.removeStartGraphic();
-        // create rings
-        if (params.circles.length === 0) {
-          if(params.ringInterval.constructor === Array) {
-            for (i = 0; i < params.ringInterval.length; i++) {
-              params.radius += params.ringDistance;
-              params.circle = new EsriCircle({
+          if (params.ringInterval && params.ringIntervalUnitsDD) {
+            if (params.ringInterval.constructor === Array) {
+              for (i = 0; i < params.ringInterval.length; i++) {
+                params.ringInterval[i] = this.coordTool.inputCoordinate.util.convertToMeters(
+                  parseFloat(params.ringInterval[i]), params.ringIntervalUnitsDD);
+              }
+            } else {
+              params.ringDistance = this.coordTool.inputCoordinate.util.convertToMeters(
+                parseFloat(params.ringInterval), params.ringIntervalUnitsDD);
+            }
+          }
+
+          this.dt.removeStartGraphic();
+          // create rings
+          if (params.circles.length === 0) {
+            if (params.ringInterval.constructor === Array) {
+              for (i = 0; i < params.ringInterval.length; i++) {
+                params.radius += params.ringDistance;
+                params.circle = new EsriCircle({
                   center: params.centerPoint,
                   geodesic: true,
                   radius: params.ringInterval[i],
                   numberOfPoints: 360
-              });
-              params.circles.push(params.circle);  
-            }            
-          } else {
-            for (params.r = 0; params.r < params.numRings; params.r++) {
-              params.radius += params.ringDistance;
-              params.circle = new EsriCircle({
+                });
+                params.circles.push(params.circle);
+              }
+            } else {
+              for (params.r = 0; params.r < params.numRings; params.r++) {
+                params.radius += params.ringDistance;
+                params.circle = new EsriCircle({
                   center: params.centerPoint,
                   geodesic: true,
                   radius: params.radius,
                   numberOfPoints: 360
-              });
-              params.circles.push(params.circle);
+                });
+                params.circles.push(params.circle);
+              }
             }
-          }                   
-        }
-
-        var u = params.ringIntervalUnitsDD;
-        for (params.c = 0; params.c < params.circles.length; params.c++) {
-          var p = {
-            'paths': [params.circles[params.c].rings[0]],
-            'spatialReference': this.map.spatialReference
-          };
-          var circlePath = new EsriPolyline(p);
-          var cGraphic = new EsriGraphic(circlePath,
-            this._lineSym,
-            {
-              'Interval': dojoNumber.round(this.coordTool.inputCoordinate.util.convertMetersToUnits(params.circles[params.c].radius, u),2) + " " + params.ringIntervalUnitsDD.charAt(0).toUpperCase() + params.ringIntervalUnitsDD.slice(1)
-            }
-          );
-          this._gl.add(cGraphic);
-        }
-
-        // create radials
-        
-        //need to find largest radius
-        params.largestRadius = 0;            
-        for (var i = 0; i < params.circles.length; i++) {
-          if(params.circles[i].radius > params.largestRadius) {
-              params.largestRadius = params.circles[i].radius;
           }
-        }           
-                    
-        //create a new geodesic circle with the radius the same as the largest circle and only the same amount of points as radials
-        //if radials are 0 this will create a circle with the default value of 60
-        var radialCircle = new EsriCircle({
-          center: params.centerPoint,
-          geodesic: true,
-          radius: params.largestRadius,
-          numberOfPoints: params.numRadials
-        });
-        
-        //if no radials we dont need to draw
-          
-        if(params.numRadials != 0) {        
-          //loop through each of the points of the new circle creating a line from the center point
-          for (var j = 0; j < radialCircle.rings[0].length - 1; j++) {              
-            var pLine = new EsriPolyline(params.centerPoint.spatialReference);  
-            pLine.addPath([dojoLang.clone(params.centerPoint),radialCircle.getPoint(0, j)]);                
-            var newline = new EsriPolyline(EsriGeometryEngine.geodesicDensify(pLine, 10000),params.centerPoint.spatialReference);              
-            this._gl.add(new EsriGraphic(newline, this._lineSym, {'Interval': ''}));
-          };
-        }
-        
-        this._gl.redraw();
-        this.map.setExtent(radialCircle.getExtent().expand(3));
-      }
-    },
 
-    /*
-     *
-     */
-    feedbackDidComplete: function (results) {
-      var centerPoint = null;
-      if (results.geometry.hasOwnProperty('circlePoints')) {
-        centerPoint = results.geometry.circlePoints[0];
-        var params = {
+          var u = params.ringIntervalUnitsDD;
+          for (params.c = 0; params.c < params.circles.length; params.c++) {
+            var p = {
+              'paths': [params.circles[params.c].rings[0]],
+              'spatialReference': this.map.spatialReference
+            };
+            var circlePath = new EsriPolyline(p);
+            var cGraphic = new EsriGraphic(circlePath,
+              this._lineSym,
+              {
+                'Interval': dojoNumber.round(this.coordTool.inputCoordinate.util.convertMetersToUnits(
+                  params.circles[params.c].radius, u), 2) + " " + params.ringIntervalUnitsDD.charAt(0).toUpperCase() +
+                  params.ringIntervalUnitsDD.slice(1)
+              }
+            );
+            this._gl.add(cGraphic);
+          }
+
+          // create radials
+
+          //need to find largest radius
+          params.largestRadius = 0;
+          for (var i = 0; i < params.circles.length; i++) {
+            if (params.circles[i].radius > params.largestRadius) {
+              params.largestRadius = params.circles[i].radius;
+            }
+          }
+
+          //create a new geodesic circle with the radius the same as the largest circle and only the same
+          //amount of points as radials
+          //if radials are 0 this will create a circle with the default value of 60
+          var radialCircle = new EsriCircle({
+            center: params.centerPoint,
+            geodesic: true,
+            radius: params.largestRadius,
+            numberOfPoints: params.numRadials
+          });
+
+          //if no radials we dont need to draw
+
+          if (params.numRadials !== 0) {
+            //loop through each of the points of the new circle creating a line from the center point
+            for (var j = 0; j < radialCircle.rings[0].length - 1; j++) {
+              var pLine = new EsriPolyline(params.centerPoint.spatialReference);
+              pLine.addPath([dojoLang.clone(params.centerPoint), radialCircle.getPoint(0, j)]);
+              var newline = new EsriPolyline(EsriGeometryEngine.geodesicDensify(pLine, 10000),
+                params.centerPoint.spatialReference);
+              this._gl.add(new EsriGraphic(newline, this._lineSym, { 'Interval': '' }));
+            }
+          }
+
+          this._gl.redraw();
+          this.map.setExtent(radialCircle.getExtent().expand(3));
+        }
+      },
+
+      /*
+       *
+       */
+      feedbackDidComplete: function (results) {
+        var centerPoint = null;
+        if (results.geometry.hasOwnProperty('circlePoints')) {
+          centerPoint = results.geometry.circlePoints[0];
+          var params = {
             centerPoint: centerPoint,
             numRadials: this.numRadialsInput.get('value'),
             circles: [],
@@ -580,102 +596,103 @@ define([
             r: 0,
             c: 0,
             radials: 0,
-            ringIntervalUnitsDD: this.distanceUnitsDD.get('value')            
-        };
-        var circle, radius;
-        for (var i = 1; i < results.geometry.circlePoints.length; i++) {
-            var pLine = new EsriPolyline(results.geometry.spatialReference);  
-            pLine.addPath([centerPoint,results.geometry.circlePoints[i]]);      
+            ringIntervalUnitsDD: this.distanceUnitsDD.get('value')
+          };
+          var circle, radius;
+          for (var i = 1; i < results.geometry.circlePoints.length; i++) {
+            var pLine = new EsriPolyline(results.geometry.spatialReference);
+            pLine.addPath([centerPoint, results.geometry.circlePoints[i]]);
             radius = EsriGeometryEngine.geodesicLength(pLine, 9001);
             circle = new EsriCircle({
-                center: centerPoint,
-                geodesic: true,
-                radius: radius,
-                numberOfPoints: 360
+              center: centerPoint,
+              geodesic: true,
+              radius: radius,
+              numberOfPoints: 360
             });
             params.circles.push(circle);
+          }
+
+          this.createRangeRings(params);
+        } else {
+          centerPoint = results.geometry;
+          this.checkValidInputs();
         }
 
-        this.createRangeRings(params);
-      } else {
-        centerPoint = results.geometry;
+        dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
+        //this.coordTool.clear();
+        this.dt.deactivate();
+        this.map.enableMapNavigation();
+      },
+
+      /*
+       * Add row to distance table
+       */
+      addDistance: function () {
+        var rowData = {
+          value: this.nls.doubleClickRangeMessage
+        };
+        this.distanceTable.addRow(rowData);
+      },
+
+      /*
+       * Remove graphics and reset values
+       */
+      clearGraphics: function () {
+        if (this._gl) {
+          // graphic layers
+          this._gl.clear();
+          this._gl.refresh();
+          this.dt.removeStartGraphic();
+          this.coordTool.clear();
+        }
         this.checkValidInputs();
-      }
-
-      dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
-      //this.coordTool.clear();
-      this.dt.deactivate();
-      this.map.enableMapNavigation();
-    },
-    
-    /*
-     * Add row to distance table
-     */
-    addDistance:function(){
-      var rowData = {
-        value:'Double click to add value'
-      };
-      this.distanceTable.addRow(rowData);        
-    },
-
-    /*
-     * Remove graphics and reset values
-     */
-    clearGraphics: function () {
-      if (this._gl) {
-        // graphic layers
-        this._gl.clear();
-        this._gl.refresh();
-        this.dt.removeStartGraphic();
-        this.coordTool.clear();
-      }
-      this.checkValidInputs();
-      //refresh each of the feature/graphic layers to enusre labels are removed
-      for(var j = 0; j < this.map.graphicsLayerIds.length; j++) {
-        this.map.getLayer(this.map.graphicsLayerIds[j]).refresh();
-      }
-    },
-    
-    /*
-     *
-     */
-    setGraphicsHidden: function () {
-      if (this._gl) {
-        this._gl.hide();
-      }
-    },
-
-    /*
-     *
-     */
-    setGraphicsShown: function () {
-      if (this._gl) {
-        this._gl.show();
-      }
-    },
-    
-    /*
-    * Activate the ok button if all the requried inputs are valid
-    */
-    checkValidInputs: function () {
-      dojoDomClass.add(this.okButton, 'jimu-state-disabled');
-        if(this.rangeType.get('value') !== 'Interactive') {
-          if(this.coordTool.inputCoordinate.coordinateEsriGeometry != null && this.numRingsInput.isValid() && this.ringIntervalInput.isValid() && this.numRadialsInput.isValid()){
-            dojoDomClass.remove(this.okButton, 'jimu-state-disabled');
-          }            
+        //refresh each of the feature/graphic layers to enusre labels are removed
+        for (var j = 0; j < this.map.graphicsLayerIds.length; j++) {
+          this.map.getLayer(this.map.graphicsLayerIds[j]).refresh();
         }
-    },
+      },
 
-    /*
-     * Make sure any active tools are deselected to prevent multiple actions being performed
-     */
-    tabSwitched: function () {
-      this.dt.deactivate();
-      this.dt.cleanup();
-      this.dt.disconnectOnMouseMoveHandlers();
-      this.map.enableMapNavigation();
-      this.dt.removeStartGraphic();
-      dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
-    }
-  });
+      /*
+       *
+       */
+      setGraphicsHidden: function () {
+        if (this._gl) {
+          this._gl.hide();
+        }
+      },
+
+      /*
+       *
+       */
+      setGraphicsShown: function () {
+        if (this._gl) {
+          this._gl.show();
+        }
+      },
+
+      /*
+      * Activate the ok button if all the requried inputs are valid
+      */
+      checkValidInputs: function () {
+        dojoDomClass.add(this.okButton, 'jimu-state-disabled');
+        if (this.rangeType.get('value') !== 'Interactive') {
+          if (this.coordTool.inputCoordinate.coordinateEsriGeometry !== null &&
+            this.numRingsInput.isValid() && this.ringIntervalInput.isValid() && this.numRadialsInput.isValid()) {
+            dojoDomClass.remove(this.okButton, 'jimu-state-disabled');
+          }
+        }
+      },
+
+      /*
+       * Make sure any active tools are deselected to prevent multiple actions being performed
+       */
+      tabSwitched: function () {
+        this.dt.deactivate();
+        this.dt.cleanup();
+        this.dt.disconnectOnMouseMoveHandlers();
+        this.map.enableMapNavigation();
+        this.dt.removeStartGraphic();
+        dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
+      }
+    });
 });

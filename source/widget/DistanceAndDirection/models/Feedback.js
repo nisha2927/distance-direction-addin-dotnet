@@ -18,52 +18,26 @@
 
 define([
   'dojo/_base/declare',
-  'dojo/_base/lang',
-  'dojo/_base/connect',
-  'dojo/has',
-  'dojo/number',
-  'dojo/string',
   'dojo/Stateful',
-  'esri/Color',
   'esri/toolbars/draw',
-  'esri/graphic',
   'esri/geometry/Polyline',
   'esri/geometry/Polygon',
   'esri/geometry/Point',
-  'esri/geometry/Circle',
-  'esri/geometry/screenUtils',
   'esri/graphic',
   'esri/geometry/geometryEngineAsync',
-  'esri/geometry/geometryEngine',
-  'esri/symbols/TextSymbol',
-  'esri/symbols/Font',
-  'esri/geometry/webMercatorUtils',
   'esri/units'
 ], function (
   dojoDeclare,
-  dojoLang,
-  connect,
-  dojoHas,
-  dojoNumber,
-  dojoString,
   dojoStateful,
-  EsriColor,
   esriDraw,
-  Graphic,
-  EsriPolyLine,
+  EsriPolyline,
   EsriPolygon,
   EsriPoint,
-  EsriCircle,
-  esriScreenUtils,
   EsriGraphic,
   esriGeoDUtils,
-  esriGeometryEngine,
-  EsriTextSymbol,
-  EsriFont,
-  EsriWebMercatorUtils,
   EsriUnits
   ) {
-    var w = dojoDeclare([esriDraw, dojoStateful], {
+var w = dojoDeclare([esriDraw, dojoStateful], {
       startPoint: null,
       _setStartPoint: function (p){
         this._set('startPoint', p);
@@ -98,9 +72,7 @@ define([
           'spatialReference': {
             'wkid': 4326
           }
-        })).then(function () {
-          console.log('Geometry Engine initialized');
-        });      
+        }));
       },
 
       /**
@@ -147,7 +119,7 @@ define([
         this.startGraphic = null;
       }
 
-  });
+    });
 
-  return w;
+return w;
 });

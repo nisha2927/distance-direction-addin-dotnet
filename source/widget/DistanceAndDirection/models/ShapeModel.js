@@ -23,10 +23,7 @@ define([
   'dojo/number',
   'esri/geometry/geometryEngine',
   'esri/geometry/webMercatorUtils',
-  'esri/geometry/Point',
-  'esri/geometry/Polyline',
-  'esri/geometry/Circle',
-  'esri/units'
+  'esri/geometry/Polyline'
 ], function (
   dojoDeclare,
   dojoArray,
@@ -35,10 +32,7 @@ define([
   dojoNumber,
   esriGeometryEngine,
   esriWMUtils,
-  esriPoint,
-  esriPolyline,
-  esriCircle,
-  esriUnit
+  esriPolyline
 ) {
   return dojoDeclare(null, {
 
@@ -102,7 +96,7 @@ define([
      * @param length
      * @returns {*}
      */
-    formatLength: function (length, withUnit) {
+    formatLength: function (length) {
       return dojoNumber.format(length, {
         places: 4
       });

@@ -20,7 +20,6 @@ define([
     'dojo/_base/lang',
     'dojo/dom-style',
     'dojo/on',
-    'dojo/topic',
     'dojo/dom-attr',
     'dijit/_WidgetBase',
     'dijit/_TemplatedMixin',
@@ -33,15 +32,14 @@ define([
     dojoLang,
     dojoDomStyle,
     dojoOn,
-    dojoTopic,
     dojoDomAttr,
     dijitWidgetBase,
     dijitTemplatedMixin,
     dijitWidgetsInTemplate,
     edittemplate
 ) {
-    'use strict';
-    return dojoDeclare([dijitWidgetBase, dijitTemplatedMixin, dijitWidgetsInTemplate], {
+'use strict';
+return dojoDeclare([dijitWidgetBase, dijitTemplatedMixin, dijitWidgetsInTemplate], {
         templateString: edittemplate,
 
         formats: {
@@ -51,7 +49,7 @@ define([
         ct: 'DD',
         _setCtAttr: function (v) {
             this.frmtSelect.set('value', v);
-        },
+          },
 
         /**
          *
@@ -62,47 +60,47 @@ define([
                 defaultFormat: 'YN XE',
                 customFormat: null,
                 useCustom: false
-            },
+              },
             DDM: {
                 defaultFormat: 'A° B\'N X° Y\'E',
                 customFormat: null,
                 useCustom: false
-            },
+              },
             DMS: {
                 defaultFormat: 'A° B\' C\"N X° Y\' Z\"E',
                 customFormat: null,
                 useCustom: false
-            },
+              },
             GARS: {
                 defaultFormat: 'XYQK',
                 customFormat: null,
                 useCustom: false
-            },
+              },
             GEOREF: {
                 defaultFormat: 'ABCDXY',
                 customFormat: null,
                 useCustom: false
-            },
+              },
             MGRS: {
                 defaultFormat: 'ZSXY',
                 customFormat: null,
                 useCustom: false
-            },
+              },
             USNG: {
                 defaultFormat: 'ZSXY',
                 customFormat: null,
                 useCustom: false
-            },
+              },
             UTM: {
                 defaultFormat: 'ZB X Y',
                 customFormat: null,
                 useCustom: false
-            },
+              },
             'UTM (H)': {
                 defaultFormat: 'ZH X Y',
                 customFormat: null,
                 useCustom: false
-            }
+              }
           };
 
           dojoDomAttr.set(this.frmtVal, 'value', this.formats[this.ct].defaultFormat);
@@ -118,7 +116,7 @@ define([
             'change',
             dojoLang.hitch(this, this.formatValDidChange)
           ));
-          
+
           this.displayPrefixContainer();
         },
 
@@ -134,7 +132,7 @@ define([
             this.formats[crdType].customFormat = newvalue;
             this.formats[crdType].useCustom = true;
             this.currentformat = newvalue;
-        },
+          },
 
         /**
          *
@@ -146,8 +144,8 @@ define([
             this.ct = curval;
             dojoDomAttr.set(this.frmtVal, 'value', selval);
             this.displayPrefixContainer();
-        },
-        
+          },
+
         /**
          *
          **/
@@ -163,6 +161,5 @@ define([
               break;
           }
         }
-
-    });
+      });
 });
