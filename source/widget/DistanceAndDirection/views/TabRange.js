@@ -19,6 +19,7 @@ define([
   'dojo/_base/lang',
   'dojo/_base/array',
   'dojo/on',
+  'dojo/query',
   'dojo/dom-class',
   'dojo/topic',
   'dojo/string',
@@ -58,6 +59,7 @@ define([
   dojoLang,
   dojoArray,
   dojoOn,
+  dojoQuery,
   dojoDomClass,
   dojoTopic,
   dojoString,
@@ -159,19 +161,16 @@ define([
         this.dt.set('lengthLayer', this._lengthLayer);
 
         this.syncEvents();
-
-        var rowData = {
-          value: 'Double click to add value'
-        };
-        this.distanceTable.addRow(rowData);
-
+        
+        this.addDistance(this.nls.doubleClickRangeMessage,false);
+        
         this.checkValidInputs();
 
         this.numRingsInput.invalidMessage = this.nls.ringsErrorMessage;
         this.numRingsInput.rangeMessage = this.nls.numericInvalidMessage;
 
         this.numRadialsInput.invalidMessage = this.nls.radialsErrorMessage;
-        this.numRadialsInput.rangeMessage = this.nls.numericInvalidMessage;
+        this.numRadialsInput.rangeMessage = this.nls.numericInvalidMessage; 
       },
 
       /*
@@ -292,7 +291,33 @@ define([
 
           dojoOn(this.numRadialsInputDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
 
-          dojoOn(this.btnAddDistance, 'click', dojoLang.hitch(this, this.addDistance))
+          dojoOn(this.btnAddDistance, 'click', dojoLang.hitch(this, function() {
+              this.addDistance(' ',true);
+            }
+          )),
+          
+          dojoOn(this.distanceTable, 'row-dblclick', dojoLang.hitch(this, function(tr) {
+            if(this.distanceTable.getRowData(tr).value === this.nls.doubleClickRangeMessage ||
+             this.distanceTable.getRowData(tr).value === ' ')
+            {
+              var rowData = {
+              value: ''
+              };
+              this.distanceTable.editRow(tr, rowData);
+            }
+          })),
+          
+          dojoOn(this.distanceTable.tbody, 'keyup', dojoLang.hitch(this, function(evt){
+            if (evt.keyCode === dojoKeys.ENTER) {
+              this.addDistance(' ',true);
+            }
+          })),
+          
+          dojoOn(this.distanceTable.tbody, 'keypress', dojoLang.hitch(this, function(evt){
+            if(evt.which != 8 && isNaN(String.fromCharCode(event.which)) || evt.keyCode === dojoKeys.SPACE){
+              evt.preventDefault();
+            }
+          }))
         );
       },
 
@@ -627,11 +652,29 @@ define([
       /*
        * Add row to distance table
        */
-      addDistance: function () {
+      addDistance: function (defaultText, setActive) {
         var rowData = {
-          value: this.nls.doubleClickRangeMessage
+          value: defaultText
         };
-        this.distanceTable.addRow(rowData);
+        var row = this.distanceTable.addRow(rowData);
+        var td = dojoQuery('.editable-div', row.tr);
+        var textInput = dojoQuery('.editable-input', row.tr);        
+        dojoOn(textInput[0], 'blur' , dojoLang.hitch(this, function(){
+          var rows = this.distanceTable.getRows();
+          dojoArray.forEach(rows, dojoLang.hitch(this, function(tr) {
+            var currentValue = this.distanceTable.getRowData(tr);
+            if(currentValue.value === ''){
+              this.distanceTable.deleteRow(tr);
+            }
+          }
+          ))
+        }));        
+        if(setActive) {                  
+          var click_ev = document.createEvent("MouseEvents");
+          click_ev.initEvent("dblclick", true, true);
+          td[0].dispatchEvent(click_ev);
+          this.distanceTable._onDblClickRow(row.tr);
+        }
       },
 
       /*
