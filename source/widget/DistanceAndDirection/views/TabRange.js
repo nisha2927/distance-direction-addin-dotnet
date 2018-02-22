@@ -314,7 +314,9 @@ define([
           })),
           
           dojoOn(this.distanceTable.tbody, 'keypress', dojoLang.hitch(this, function(evt){
-            if(evt.which != 8 && isNaN(String.fromCharCode(event.which)) || evt.keyCode === dojoKeys.SPACE){
+            if((evt.which != 8 && isNaN(String.fromCharCode(event.which)) || 
+              evt.keyCode === dojoKeys.SPACE)&& 
+               evt.keyCode !== 44 && evt.keyCode !== 46 ){
               evt.preventDefault();
             }
           }))
@@ -493,6 +495,7 @@ define([
         } else {
           invalidValue = dojoArray.map(tableRows, dojoLang.hitch(this, function (tr) {
             var data = this.distanceTable.getRowData(tr);
+            data.value = data.value.replace(',', '.');
             return isNaN(data.value);
           }));
         }
@@ -514,11 +517,11 @@ define([
             if (params.ringInterval.constructor === Array) {
               for (i = 0; i < params.ringInterval.length; i++) {
                 params.ringInterval[i] = this.coordTool.inputCoordinate.util.convertToMeters(
-                  parseFloat(params.ringInterval[i]), params.ringIntervalUnitsDD);
+                  parseFloat(params.ringInterval[i].replace(',', '.')), params.ringIntervalUnitsDD);
               }
             } else {
               params.ringDistance = this.coordTool.inputCoordinate.util.convertToMeters(
-                parseFloat(params.ringInterval), params.ringIntervalUnitsDD);
+                parseFloat(params.ringInterval.replace(',', '.')), params.ringIntervalUnitsDD);
             }
           }
 
