@@ -18,19 +18,22 @@ define([
   'dojo/_base/declare',
   'dojo/_base/lang',
   'dojo/_base/array',
+  'dojo/dom-construct',
   'dojo/on',
-  'dojo/query',
   'dojo/dom-class',
   'dojo/topic',
   'dojo/string',
   'dojo/mouse',
   'dojo/keys',
   'dojo/number',
+  'dijit/registry',
   'dijit/_WidgetBase',
   'dijit/_TemplatedMixin',
   'dijit/TooltipDialog',
   'dijit/popup',
+  'dijit/form/NumberTextBox',
   'jimu/dijit/Message',
+  'jimu/dijit/SimpleTable',
   'jimu/LayerInfos/LayerInfos',
   'jimu/utils',
   'dijit/_WidgetsInTemplateMixin',
@@ -50,27 +53,28 @@ define([
   '../views/CoordinateInput',
   '../views/EditOutputCoordinate',
   '../models/RangeRingFeedback',
-  'dijit/form/NumberTextBox',
   'dijit/form/Select',
-  'jimu/dijit/CheckBox',
-  'jimu/dijit/SimpleTable'
+  'jimu/dijit/CheckBox'  
 ], function (
   dojoDeclare,
   dojoLang,
   dojoArray,
+  domConstruct,
   dojoOn,
-  dojoQuery,
   dojoDomClass,
   dojoTopic,
   dojoString,
   dojoMouse,
   dojoKeys,
   dojoNumber,
+  dijitRegistry,
   dijitWidgetBase,
   dijitTemplatedMixin,
   DijitTooltipDialog,
   DijitPopup,
+  NumberTextBox,
   Message,
+  SimpleTable,
   jimuLayerInfos,
   jimuUtils,
   dijitWidgetsInTemplate,
@@ -97,6 +101,7 @@ define([
       baseClass: 'jimu-widget-TabRange',
 
       startPoint: null,
+      firstDistance: true,
 
       _setStartPointAttr: function () {
         this._set('startPoint');
@@ -122,6 +127,8 @@ define([
         this._labelSym = new EsriTextSymbol(this.labelSymbol);
 
         this.map.addLayer(this.getLayer());
+        
+        this._initDistanceTable();
 
         //must ensure the layer is loaded before we can access it to turn on the labels
         if (this._gl.loaded) {
@@ -162,7 +169,7 @@ define([
 
         this.syncEvents();
         
-        this.addDistance(this.nls.doubleClickRangeMessage,false);
+        this._distanceTable.addRow({});
         
         this.checkValidInputs();
 
@@ -172,7 +179,73 @@ define([
         this.numRadialsInput.invalidMessage = this.nls.radialsErrorMessage;
         this.numRadialsInput.rangeMessage = this.nls.numericInvalidMessage; 
       },
-
+      
+      _initDistanceTable: function () {
+        var fields = [{
+          name: 'Value',
+          title: this.nls.valueLabel,
+          type: 'extension',
+          'class': 'label',
+          create: dojoLang.hitch(this, this._createValueField),
+          getValue: dojoLang.hitch(this, this._getValueFieldValue)
+        }, {
+          name: 'actions',
+          title: this.nls.actionLabel,
+          width: "65px",
+          type: 'actions',
+          actions: ['up', 'down', 'delete'],
+          'class': 'label'
+        }];
+        this._distanceTable = new SimpleTable({
+          fields: fields,
+          autoHeight: true
+        });
+        this._distanceTable.placeAt(this.distanceTable);
+        this._distanceTable.startup();
+      },
+      
+      _createValueField: function (td) {
+        var numberField = new NumberTextBox({
+          id: dijitRegistry.getUniqueId('ntb'),
+          required: "true",
+          placeHolder: this.nls.valueText,
+          invalidMessage: this.nls.numericInvalidMessage,
+          value: this.firstDistance?'':0,
+          constraints: {
+            places: 2            
+          },
+          'class': 'numberTextBox'
+        });
+        domConstruct.place(numberField.domNode, td);        
+        
+        dojoOn(numberField, 'focus', dojoLang.hitch(this, function(){
+          if(numberField.get('value') === 0) {
+            numberField.set('value','');
+          }
+        }));        
+        
+        dojoOn(numberField, 'blur', dojoLang.hitch(this, function(){
+          var rows = this._distanceTable.getRows();
+          dojoArray.forEach(rows, dojoLang.hitch(this, function(tr) {
+            var currentValue = this._distanceTable.getRowData(tr);
+            if(!currentValue.Value.valid){
+              this._distanceTable.deleteRow(tr);
+            }
+          }))
+        }));
+        
+        numberField.focus();
+        this.firstDistance = false;
+      },
+      
+      _getValueFieldValue: function (td) { 
+        var numberTextBox = dijitRegistry.byNode(td.childNodes[0]);
+        return {
+          value: numberTextBox.get('value'), 
+          valid: numberTextBox.isValid()
+        };
+      },
+      
       /*
        * upgrade graphicslayer so we can use the label params
        */
@@ -292,34 +365,15 @@ define([
           dojoOn(this.numRadialsInputDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
 
           dojoOn(this.btnAddDistance, 'click', dojoLang.hitch(this, function() {
-              this.addDistance(' ',true);
+              this._distanceTable.addRow({});
             }
           )),
-          
-          dojoOn(this.distanceTable, 'row-dblclick', dojoLang.hitch(this, function(tr) {
-            if(this.distanceTable.getRowData(tr).value === this.nls.doubleClickRangeMessage ||
-             this.distanceTable.getRowData(tr).value === ' ')
-            {
-              var rowData = {
-              value: ''
-              };
-              this.distanceTable.editRow(tr, rowData);
-            }
-          })),
-          
-          dojoOn(this.distanceTable.tbody, 'keyup', dojoLang.hitch(this, function(evt){
+                            
+          dojoOn(this._distanceTable.tbody, 'keyup', dojoLang.hitch(this, function(evt){
             if (evt.keyCode === dojoKeys.ENTER) {
-              this.addDistance(' ',true);
+              this._distanceTable.addRow({});
             }
-          })),
-          
-          dojoOn(this.distanceTable.tbody, 'keypress', dojoLang.hitch(this, function(evt){
-            if((evt.which != 8 && isNaN(String.fromCharCode(event.which)) || 
-              evt.keyCode === dojoKeys.SPACE)&& 
-               evt.keyCode !== 44 && evt.keyCode !== 46 ){
-              evt.preventDefault();
-            }
-          }))
+          }))          
         );
       },
 
@@ -445,17 +499,17 @@ define([
             case 'Cumulative':
               ringIntervalUnits = this.distanceUnitsDD.get('value');
               if (this.checkTableValues()) {
-                var tableRows = this.distanceTable.getRows();
+                var tableRows = this._distanceTable.getRows();
                 if (this.rangeType.get('value') === 'Origin') {
                   ringInterval = dojoArray.map(tableRows, dojoLang.hitch(this, function (tr) {
-                    var data = this.distanceTable.getRowData(tr);
-                    return data.value.replace(',', '.');
+                    var data = this._distanceTable.getRowData(tr);
+                    return data.Value.value;
                   }));
                 } else {
                   var totalDistance = 0;
                   ringInterval = dojoArray.map(tableRows, dojoLang.hitch(this, function (tr) {
-                    var data = this.distanceTable.getRowData(tr);
-                    totalDistance = totalDistance + Number(data.value.replace(',', '.'));
+                    var data = this._distanceTable.getRowData(tr);
+                    totalDistance = totalDistance + data.Value.value;
                     return totalDistance;
                   }));
                 }
@@ -488,18 +542,8 @@ define([
       },
 
       checkTableValues: function () {
-        var tableRows = this.distanceTable.getRows();
-        var invalidValue = [];
-        if (tableRows.length < 1) {
-          invalidValue.push(true);
-        } else {
-          invalidValue = dojoArray.map(tableRows, dojoLang.hitch(this, function (tr) {
-            var data = this.distanceTable.getRowData(tr);
-            data.value = data.value.replace(',', '.');
-            return isNaN(data.value);
-          }));
-        }
-        return invalidValue.indexOf(true) === -1;
+        var tableRows = this._distanceTable.getRows();
+        return tableRows.length > 0;        
       },
 
       /*
@@ -650,35 +694,7 @@ define([
         //this.coordTool.clear();
         this.dt.deactivate();
         this.map.enableMapNavigation();
-      },
-
-      /*
-       * Add row to distance table
-       */
-      addDistance: function (defaultText, setActive) {
-        var rowData = {
-          value: defaultText
-        };
-        var row = this.distanceTable.addRow(rowData);
-        var td = dojoQuery('.editable-div', row.tr);
-        var textInput = dojoQuery('.editable-input', row.tr);        
-        dojoOn(textInput[0], 'blur' , dojoLang.hitch(this, function(){
-          var rows = this.distanceTable.getRows();
-          dojoArray.forEach(rows, dojoLang.hitch(this, function(tr) {
-            var currentValue = this.distanceTable.getRowData(tr);
-            if(currentValue.value === ''){
-              this.distanceTable.deleteRow(tr);
-            }
-          }
-          ))
-        }));        
-        if(setActive) {                  
-          var click_ev = document.createEvent("MouseEvents");
-          click_ev.initEvent("dblclick", true, true);
-          td[0].dispatchEvent(click_ev);
-          this.distanceTable._onDblClickRow(row.tr);
-        }
-      },
+      },      
 
       /*
        * Remove graphics and reset values

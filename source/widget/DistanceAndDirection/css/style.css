@@ -117,6 +117,13 @@
     cursor: default;
 }
 
+.jimu-widget-DistanceAndDirection .numberTextBox {
+    width: 130px;
+    height: 25px;
+    margin-bottom: 2px;
+    border: none;
+}
+
 .jimu-widget-DistanceAndDirection .add-with-icon {
     display: inline-block;
     height: 32px;

@@ -25,8 +25,7 @@ define({
     startPointLabel: "Start Point",
     endPointLabel: "End Point",
     centerPointLabel: "Center Point",
-    distanceTableErrorMessage: "Distance table is empty or contains invalid values. Ensure all distances are numeric.",
-    doubleClickRangeMessage: "Double click to add value",
+    distanceTableErrorMessage: "Distance table is empty. Please ensure you enter some distances.",
     setCoordFormatStringMessage: "Set Coordinate Format String",
     prefixMessage:"Add '+/-' prefix to positive and negative numbers",
     ddLabel: "DD",
@@ -102,7 +101,10 @@ define({
     downLabel: "Down",
     deleteLabel: "Delete",
     radialsErrorMessage: "Invalid number of radials. The maximum allowed is 360",
-    addPointLabel: "Add Point"
+    addPointLabel: "Add Point",
+    valueLabel: "Value",
+    valueText: "Enter Value",
+    actionLabel: "Action"
   }),
   "ar": 0,
   "bs": 0,
