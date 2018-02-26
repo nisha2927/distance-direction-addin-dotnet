@@ -101,16 +101,6 @@
     text-align: left;
 }
 
-
-.jimu-widget-DistanceAndDirection .addPointBtn {
-    background: url(../images/draw_point.png) no-repeat;
-    width: 32px;
-    height: 32px;
-    background-repeat: no-repeat;
-    background-position: center center;
-
-}
-
 .jimu-widget-DistanceAndDirection .label {
     font-size: 12px;
     margin: auto 5px;
@@ -127,24 +117,27 @@
 .jimu-widget-DistanceAndDirection .add-with-icon {
     display: inline-block;
     height: 32px;
-    line-height:37px;
     color: #838383;
 }
 
-.jimu-widget-DistanceAndDirection .add-with-icon .draw {
-  display: inline-block;
-  background: url(../images/draw_point.png);
+.jimu-widget-DistanceAndDirection .drawPointBtn {
+  background: url(../images/draw_black.png);
   background-repeat: no-repeat;
   background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center center;
-  width: 30px;
-  height: 30px;
-  margin-left: 5px;
+  width: 12px;
+  height: 16px;
 }
 
-.jimu-widget-DistanceAndDirection .add-with-icon .draw:hover {
-    background-color: #c0c0c0;
+.jimu-widget-DistanceAndDirection .drawPointBtn:hover {
+    background: url(../images/draw_black_hover.png);
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+
+.jimu-widget-DistanceAndDirection .drawPointBtn-active{
+    background: url(../images/draw_black_hover.png);
+    background-repeat: no-repeat;
+    background-color: transparent;
 }
 
 .jimu-widget-DistanceAndDirection .add-with-icon .draw .hidden {
@@ -161,7 +154,9 @@
 }
 
 .jimu-widget-DistanceAndDirection .controlItem .paddedLeft{
-   padding-left: 14px;
+    padding-left: 7px;
+    display: inline-block;
+    padding-top: 7px;
 }
 
 .jimu-widget-DistanceAndDirection .disabledLabel {
@@ -245,28 +240,28 @@
     margin-top: 6px;
 }
 
-.DartTheme .jimu-icon {
-    background-image: url(images/sprite.png);
-}
-
 .DartTheme  .jimu-widget-cw .cpbtn {
     background: url(../images/copy.png);
 }
 
-.DartTheme  .add-with-icon .draw {
-  background: url(../images/draw_point_dart.png);
-  display: inline-block;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center center;
-  width: 30px;
-  height: 30px;
-  margin-left: 5px;
+.DartTheme  .jimu-widget-DistanceAndDirection .drawPointBtn {
+    background: url(../images/draw_black.png);
+    background-repeat: no-repeat;
+    background-color: transparent;
+    width: 12px;
+    height: 16px;
 }
 
-.DartTheme .jimu-widget-DistanceAndDirection .add-with-icon .draw:hover {
-    background-color: #000000;
+.DartTheme .jimu-widget-DistanceAndDirection .drawPointBtn:hover {
+    background: url(../images/draw_black_hover.png);
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+
+.DartTheme .jimu-widget-DistanceAndDirection .drawPointBtn-active{
+  background: url(../images/draw_black_hover.png);
+    background-repeat: no-repeat;
+    background-color: transparent;
 }
 
 .DartTheme .jimu-widget-DistanceAndDirection .disabledLabel {

@@ -27,7 +27,8 @@ define([
     /**
      *
      **/
-    constructor: function () {
+    constructor: function (args) {
+        dojoDeclare.safeMixin(this, args);
         this.inherited(arguments);
         this.inputCoordinate = new Coord({appConfig: arguments[0].appConfig, nls: this.nls});
       },

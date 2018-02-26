@@ -406,15 +406,21 @@ define([
        * Button click event, activate feedback tool
        */
       pointButtonWasClicked: function () {
-        this.coordTool.manualInput = false;
-        dojoTopic.publish('clear-points');
-        this.map.disableMapNavigation();
-        if (this.interactiveEllipse.checked) {
-          this.dt.activate('polyline');
+        if(dojoDomClass.contains(this.addPointBtn,'drawPointBtn-active')) {
+          //already selected so deactivate draw tool
+          this.dt.deactivate();
+          this.map.enableMapNavigation();
         } else {
-          this.dt.activate('point');
+          this.coordTool.manualInput = false;
+          dojoTopic.publish('clear-points');
+          this.map.disableMapNavigation();
+          if (this.interactiveEllipse.checked) {
+            this.dt.activate('polyline');
+          } else {
+            this.dt.activate('point');
+          }
         }
-        dojoDomClass.toggle(this.addPointBtn, 'jimu-state-active');
+        dojoDomClass.toggle(this.addPointBtn, 'drawPointBtn-active');
       },
 
       /*
@@ -478,7 +484,7 @@ define([
         this.map.enableMapNavigation();
         this.dt.deactivate();
         //this.dt.removeStartGraphic();
-        dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
+        dojoDomClass.remove(this.addPointBtn, 'drawPointBtn-active');
       },
 
       /*
@@ -489,7 +495,7 @@ define([
           this._gl.clear();
           this.coordTool.clear();
         }
-        dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
+        dojoDomClass.remove(this.addPointBtn, 'drawPointBtn-active');
         this.checkValidInputs();
         //refresh each of the feature/graphic layers to enusre labels are removed
         for (var j = 0; j < this.map.graphicsLayerIds.length; j++) {
@@ -573,7 +579,7 @@ define([
         this.dt.disconnectOnMouseMoveHandler();
         this.map.enableMapNavigation();
         this.dt.removeStartGraphic();
-        dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
+        dojoDomClass.remove(this.addPointBtn, 'drawPointBtn-active');
       }
     });
 });

@@ -451,20 +451,26 @@ define([
      * Button click event, activate feedback tool
      */
     pointButtonWasClicked: function () {
-      this.coordTool.manualInput = false;
-      dojoTopic.publish('clear-points');
-      this.map.disableMapNavigation();
-      this.dt.set('isDiameter', this.creationType.get('value') === 'Diameter');
-      if (this.distCalcControl.get('open')) {
-        this.dt.activate('point');
+      if(dojoDomClass.contains(this.addPointBtn,'drawPointBtn-active')) {
+        //already selected so deactivate draw tool
+        this.dt.deactivate();
+        this.map.enableMapNavigation();
       } else {
-        if(!this.interactiveCircle.checked) {
+        this.coordTool.manualInput = false;
+        dojoTopic.publish('clear-points');
+        this.map.disableMapNavigation();
+        this.dt.set('isDiameter', this.creationType.get('value') === 'Diameter');
+        if (this.distCalcControl.get('open')) {
           this.dt.activate('point');
         } else {
-          this.dt.activate('polyline');
+          if(!this.interactiveCircle.checked) {
+            this.dt.activate('point');
+          } else {
+            this.dt.activate('polyline');
+          }
         }
       }
-      dojoDomClass.toggle(this.addPointBtn, 'jimu-state-active');
+      dojoDomClass.toggle(this.addPointBtn, 'drawPointBtn-active');
     },
 
     /*
@@ -492,7 +498,9 @@ define([
      */
     feedbackDidComplete: function (results) {
         if(!results.geometry.center){
-          dojoDomClass.toggle(this.addPointBtn, 'jimu-state-active');
+          dojoDomClass.toggle(this.addPointBtn, 'drawPointBtn-active');
+          this.map.enableMapNavigation();
+          this.dt.deactivate();
           this.checkValidInputs();
           return;
         }
@@ -531,7 +539,7 @@ define([
      */
     setGraphic: function (isManual, lineGeom) {
       if(!isManual) {
-        dojoDomClass.toggle(this.addPointBtn, 'jimu-state-active');
+        dojoDomClass.toggle(this.addPointBtn, 'drawPointBtn-active');
       }
 
       var results = {};
@@ -616,7 +624,7 @@ define([
       this.useCalculatedDistance = false;
       this.currentCircle = null;
 
-      dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
+      dojoDomClass.remove(this.addPointBtn, 'drawPointBtn-active');
       dojoDomAttr.set(this.startPointCoords, 'value', '');
       this.radiusInput.set('value', 1000);
       this.timeInput.set('value', 1);
@@ -663,7 +671,7 @@ define([
       this.dt.set('startPoint', null);
       this.map.enableMapNavigation();
       this.dt.removeStartGraphic();
-      dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
+      dojoDomClass.remove(this.addPointBtn, 'drawPointBtn-active');
     }
 
   });

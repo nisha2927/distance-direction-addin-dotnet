@@ -371,8 +371,10 @@ define([
         this.coordToolEnd.set('disabled', this.interactiveLine.checked);
         if (this.interactiveLine.checked) {
           dojoDomClass.add(this.addPointBtnEndDiv, 'controlGroupHidden');
+          this.addPointBtnStart.title = this.nls.drawLineLabel;
         } else {
           this.coordToolEnd.clear();
+          this.addPointBtnStart.title = this.nls.addPointLabel;
           dojoDomClass.remove(this.addPointBtnEndDiv, 'controlGroupHidden');
         }
         this.checkValidInputs();
@@ -383,7 +385,7 @@ define([
       */
       lineTypeDDDidChange: function () {
         if (this.lineTypeDD.get('value') === 'Points') {
-          this.addPointBtnStart.title = this.nls.drawLineLabel;
+          this.addPointBtnStart.title = this.nls.addPointLabel;
           this.coordToolEnd.set('disabled', false);
           this.angleInput.set('disabled', true);
           this.lengthInput.set('disabled', true);
@@ -528,29 +530,41 @@ define([
       /*
        * Add start button click event, activate feedback tool
        */
-      addStartPointButtonClicked: function () {
-        this.tabSwitched();
-        this.coordToolStart.manualInput = false;
-        this.coordToolEnd.manualInput = false;
-        this.map.disableMapNavigation();
-        if (this.lineTypeDD.get('value') === 'Points' && this.interactiveLine.checked) {
-          this.dtStart.activate('polyline');
+      addStartPointButtonClicked: function () {        
+        if(dojoDomClass.contains(this.addPointBtnStart,'drawPointBtn-active')) {
+          //already selected so deactivate draw tool
+          this.dtStart.deactivate();
+          this.map.enableMapNavigation();
         } else {
-          this.dtStart.activate('point');
+          this.tabSwitched();
+          this.coordToolStart.manualInput = false;
+          this.coordToolEnd.manualInput = false;
+          this.map.disableMapNavigation();
+          if (this.lineTypeDD.get('value') === 'Points' && this.interactiveLine.checked) {
+            this.dtStart.activate('polyline');
+          } else {
+            this.dtStart.activate('point');
+          }
         }
-        dojoDomClass.toggle(this.addPointBtnStart, 'jimu-state-active');
+        dojoDomClass.toggle(this.addPointBtnStart, 'drawPointBtn-active');
       },
 
       /*
        * Button click event, activate feedback tool
        */
       addEndPointButtonClicked: function () {
-        this.tabSwitched();
-        this.coordToolStart.manualInput = false;
-        this.coordToolEnd.manualInput = false;
-        this.map.disableMapNavigation();
-        this.dtEnd.activate('point');
-        dojoDomClass.toggle(this.addPointBtnEnd, 'jimu-state-active');
+        if(dojoDomClass.contains(this.addPointBtnEnd,'drawPointBtn-active')) {
+          //already selected so deactivate draw tool
+          this.dtEnd.deactivate();
+          this.map.enableMapNavigation();
+        } else {
+          this.tabSwitched();
+          this.coordToolStart.manualInput = false;
+          this.coordToolEnd.manualInput = false;
+          this.map.disableMapNavigation();
+          this.dtEnd.activate('point');
+        }
+        dojoDomClass.toggle(this.addPointBtnEnd, 'drawPointBtn-active');
       },
 
       /*
@@ -615,11 +629,11 @@ define([
               this.currentLine.wmGeometry.getExtent().expand(3);
             this.map.setExtent(ext);
             if (this.interactiveLine.checked) {
-              dojoDomClass.toggle(this.addPointBtnStart, 'jimu-state-active');
+              dojoDomClass.toggle(this.addPointBtnStart, 'drawPointBtn-active');
             }
           }
         } else {
-          dojoDomClass.toggle(this.addPointBtnStart, 'jimu-state-active');
+          dojoDomClass.toggle(this.addPointBtnStart, 'drawPointBtn-active');
         }
         this.checkValidInputs();
         this.map.enableMapNavigation();
@@ -633,7 +647,7 @@ define([
         this.checkValidInputs();
         this.map.enableMapNavigation();
         this.dtEnd.deactivate();
-        dojoDomClass.toggle(this.addPointBtnEnd, 'jimu-state-active');
+        dojoDomClass.toggle(this.addPointBtnEnd, 'drawPointBtn-active');
       },
 
       /*
@@ -742,8 +756,8 @@ define([
         this.dtStart.deactivate();
         this.dtEnd.deactivate();
         this.map.enableMapNavigation();
-        dojoDomClass.remove(this.addPointBtnStart, 'jimu-state-active');
-        dojoDomClass.remove(this.addPointBtnEnd, 'jimu-state-active');
+        dojoDomClass.remove(this.addPointBtnStart, 'drawPointBtn-active');
+        dojoDomClass.remove(this.addPointBtnEnd, 'drawPointBtn-active');
       }
     });
 });

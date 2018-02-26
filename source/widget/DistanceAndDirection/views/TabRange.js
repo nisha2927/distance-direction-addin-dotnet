@@ -54,7 +54,7 @@ define([
   '../views/EditOutputCoordinate',
   '../models/RangeRingFeedback',
   'dijit/form/Select',
-  'jimu/dijit/CheckBox'
+  'jimu/dijit/CheckBox'  
 ], function (
   dojoDeclare,
   dojoLang,
@@ -133,22 +133,19 @@ define([
         //must ensure the layer is loaded before we can access it to turn on the labels
         if (this._gl.loaded) {
           var featureLayerInfo =
-            jimuLayerInfos.getInstanceSync().getLayerInfoById(
-              'Distance & Direction - Range Graphics');
+            jimuLayerInfos.getInstanceSync().getLayerInfoById('Distance & Direction - Range Graphics');
           featureLayerInfo.showLabels();
           featureLayerInfo.enablePopup();
         } else {
           this._gl.on("load", dojoLang.hitch(this, function () {
             var featureLayerInfo =
-              jimuLayerInfos.getInstanceSync().getLayerInfoById(
-                'Distance & Direction - Range Graphics');
+              jimuLayerInfos.getInstanceSync().getLayerInfoById('Distance & Direction - Range Graphics');
             featureLayerInfo.showLabels();
             featureLayerInfo.enablePopup();
           }));
         }
 
-        this.coordTool = new CoordInput({ appConfig: this.appConfig, nls: this.nls },
-          this.rangeCenter);
+        this.coordTool = new CoordInput({ appConfig: this.appConfig, nls: this.nls }, this.rangeCenter);
 
         this.coordTool.inputCoordinate.formatType = 'DD';
 
@@ -158,8 +155,7 @@ define([
         });
 
         if (this.appConfig.theme.name === 'DartTheme') {
-          dojoDomClass.add(this.coordinateFormat.domNode,
-            'dartThemeClaroDijitTooltipContainerOverride');
+          dojoDomClass.add(this.coordinateFormat.domNode, 'dartThemeClaroDijitTooltipContainerOverride');
         }
 
         // add extended toolbar
@@ -216,18 +212,18 @@ define([
           invalidMessage: this.nls.numericInvalidMessage,
           value: this.firstDistance?'':0,
           constraints: {
-            places: 2
+            places: 2            
           },
           'class': 'numberTextBox'
         });
-        domConstruct.place(numberField.domNode, td);
+        domConstruct.place(numberField.domNode, td);        
         this.own(
           dojoOn(numberField, 'focus', dojoLang.hitch(this, function(){
             if(numberField.get('value') === 0) {
               numberField.set('value','');
             }
-          })),
-
+          })),        
+          
           dojoOn(numberField, 'blur', dojoLang.hitch(this, function(){
             var rows = this._distanceTable.getRows();
             dojoArray.forEach(rows, dojoLang.hitch(this, function(tr) {
@@ -235,21 +231,21 @@ define([
               if(!currentValue.Value.valid){
                 this._distanceTable.deleteRow(tr);
               }
-            }));
+            }))
           }))
-        );
+        );        
         numberField.focus();
         this.firstDistance = false;
       },
-
-      _getValueFieldValue: function (td) {
+      
+      _getValueFieldValue: function (td) { 
         var numberTextBox = dijitRegistry.byNode(td.childNodes[0]);
         return {
-          value: numberTextBox.get('value'),
+          value: numberTextBox.get('value'), 
           valid: numberTextBox.isValid()
         };
       },
-
+      
       /*
        * upgrade graphicslayer so we can use the label params
        */
@@ -320,8 +316,7 @@ define([
           this.dt.addStartGraphic(nv, this._ptSym);
         }));
 
-        this.coordTool.inputCoordinate.watch('outputString',
-          dojoLang.hitch(this, function (r, ov, nv) {
+        this.coordTool.inputCoordinate.watch('outputString', dojoLang.hitch(this, function (r, ov, nv) {
           r = ov = null;
           if (!this.coordTool.manualInput) { this.coordTool.set('value', nv); }
         }));
@@ -333,16 +328,13 @@ define([
 
           dojoOn(this.rangeType, 'change', dojoLang.hitch(this, this.rangeTypeDropDownChanged)),
 
-          dojoOn(this.ringIntervalUnitsDD, 'change',
-            dojoLang.hitch(this, this.ringIntervalUnitsDidChange)),
+          dojoOn(this.ringIntervalUnitsDD, 'change', dojoLang.hitch(this, this.ringIntervalUnitsDidChange)),
 
-          dojoOn(this.coordinateFormatButton, 'click',
-            dojoLang.hitch(this, this.coordinateFormatButtonWasClicked)),
+          dojoOn(this.coordinateFormatButton, 'click', dojoLang.hitch(this, this.coordinateFormatButtonWasClicked)),
 
           dojoOn(this.addPointBtn, 'click', dojoLang.hitch(this, this.pointButtonWasClicked)),
 
-          dojoOn(this.coordinateFormat.content.applyButton, 'click',
-            dojoLang.hitch(this, function () {
+          dojoOn(this.coordinateFormat.content.applyButton, 'click', dojoLang.hitch(this, function () {
             var fs = this.coordinateFormat.content.formats[this.coordinateFormat.content.ct];
             var cfs = fs.defaultFormat;
             var fv = this.coordinateFormat.content.frmtSelect.get('value');
@@ -360,8 +352,7 @@ define([
             DijitPopup.close(this.coordinateFormat);
           })),
 
-          dojoOn(this.coordinateFormat.content.cancelButton, 'click',
-            dojoLang.hitch(this, function () {
+          dojoOn(this.coordinateFormat.content.cancelButton, 'click', dojoLang.hitch(this, function () {
             DijitPopup.close(this.coordinateFormat);
           })),
 
@@ -369,11 +360,9 @@ define([
 
           dojoOn(this.numRingsDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
 
-          dojoOn(this.ringIntervalDiv, dojoMouse.leave,
-            dojoLang.hitch(this, this.checkValidInputs)),
+          dojoOn(this.ringIntervalDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
 
-          dojoOn(this.numRadialsInputDiv, dojoMouse.leave,
-            dojoLang.hitch(this, this.checkValidInputs)),
+          dojoOn(this.numRadialsInputDiv, dojoMouse.leave, dojoLang.hitch(this, this.checkValidInputs)),
 
           dojoOn(this.btnAddDistance, 'click', dojoLang.hitch(this, function() {
               this._distanceTable.addRow({});
@@ -384,7 +373,7 @@ define([
             if (evt.keyCode === dojoKeys.ENTER) {
               this._distanceTable.addRow({});
             }
-          }))
+          }))          
         );
       },
 
@@ -472,15 +461,21 @@ define([
        * Button click event, activate feedback tool
        */
       pointButtonWasClicked: function () {
-        this.coordTool.manualInput = false;
-        dojoTopic.publish('clear-points');
-        this.map.disableMapNavigation();
-        if (this.rangeType.get('value') === 'Interactive') {
-          this.dt.activate('polyline');
+        if(dojoDomClass.contains(this.addPointBtn,'drawPointBtn-active')) {
+          //already selected so deactivate draw tool
+          this.dt.deactivate();
+          this.map.enableMapNavigation();
         } else {
-          this.dt.activate('point');
+          this.coordTool.manualInput = false;
+          dojoTopic.publish('clear-points');
+          this.map.disableMapNavigation();
+          if (this.rangeType.get('value') === 'Interactive') {
+            this.dt.activate('polyline');
+          } else {
+            this.dt.activate('point');
+          }
         }
-        dojoDomClass.toggle(this.addPointBtn, 'jimu-state-active');
+        dojoDomClass.toggle(this.addPointBtn, 'drawPointBtn-active');
       },
 
       /*
@@ -533,8 +528,7 @@ define([
               break;
           }
           var params = {
-            centerPoint: this.dt.get('startPoint') ||
-              this.coordTool.inputCoordinate.coordinateEsriGeometry,
+            centerPoint: this.dt.get('startPoint') || this.coordTool.inputCoordinate.coordinateEsriGeometry,
             numRings: numRings,
             numRadials: this.numRadialsInput.get('value'),
             radius: 0,
@@ -619,10 +613,8 @@ define([
             var cGraphic = new EsriGraphic(circlePath,
               this._lineSym,
               {
-                'Interval': dojoNumber.round(
-                  this.coordTool.inputCoordinate.util.convertMetersToUnits(
-                  params.circles[params.c].radius, u), 2) + " " +
-                    params.ringIntervalUnitsDD.charAt(0).toUpperCase() +
+                'Interval': dojoNumber.round(this.coordTool.inputCoordinate.util.convertMetersToUnits(
+                  params.circles[params.c].radius, u), 2) + " " + params.ringIntervalUnitsDD.charAt(0).toUpperCase() +
                   params.ringIntervalUnitsDD.slice(1)
               }
             );
@@ -639,8 +631,7 @@ define([
             }
           }
 
-          //create a new geodesic circle with the
-          //radius the same as the largest circle and only the same
+          //create a new geodesic circle with the radius the same as the largest circle and only the same
           //amount of points as radials
           //if radials are 0 this will create a circle with the default value of 60
           var radialCircle = new EsriCircle({
@@ -653,8 +644,7 @@ define([
           //if no radials we dont need to draw
 
           if (params.numRadials !== 0) {
-            //loop through each of the points of the
-            //new circle creating a line from the center point
+            //loop through each of the points of the new circle creating a line from the center point
             for (var j = 0; j < radialCircle.rings[0].length - 1; j++) {
               var pLine = new EsriPolyline(params.centerPoint.spatialReference);
               pLine.addPath([dojoLang.clone(params.centerPoint), radialCircle.getPoint(0, j)]);
@@ -706,7 +696,7 @@ define([
           this.checkValidInputs();
         }
 
-        dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
+        dojoDomClass.remove(this.addPointBtn, 'drawPointBtn-active');
         //this.coordTool.clear();
         this.dt.deactivate();
         this.map.enableMapNavigation();
@@ -755,8 +745,7 @@ define([
         dojoDomClass.add(this.okButton, 'jimu-state-disabled');
         if (this.rangeType.get('value') !== 'Interactive') {
           if (this.coordTool.inputCoordinate.coordinateEsriGeometry !== null &&
-            this.numRingsInput.isValid() && this.ringIntervalInput.isValid() &&
-            this.numRadialsInput.isValid()) {
+            this.numRingsInput.isValid() && this.ringIntervalInput.isValid() && this.numRadialsInput.isValid()) {
             dojoDomClass.remove(this.okButton, 'jimu-state-disabled');
           }
         }
@@ -771,7 +760,7 @@ define([
         this.dt.disconnectOnMouseMoveHandlers();
         this.map.enableMapNavigation();
         this.dt.removeStartGraphic();
-        dojoDomClass.remove(this.addPointBtn, 'jimu-state-active');
+        dojoDomClass.remove(this.addPointBtn, 'drawPointBtn-active');
       }
     });
 });

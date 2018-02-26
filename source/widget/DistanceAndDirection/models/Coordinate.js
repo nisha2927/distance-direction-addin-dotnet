@@ -115,6 +115,7 @@ var mo = dojoDeclare([dojoStateful], {
         } else {
           var dialog = new dialogConfirm({
             title: this.nls.confirmInputNotationMessage,
+            nls: this.nls,
             content: new ConfirmNotation({ nls: this.nls }, itm),
             style: "width: 400px",
             hasSkipCheckBox: false

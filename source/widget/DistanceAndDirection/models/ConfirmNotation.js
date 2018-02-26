@@ -36,9 +36,9 @@ return dojoDeclare([dijitWidgetBase, dijitTemplatedMixin, dijitWidgetsInTemplate
       numberOfInputs: 0,
       selectOptions: {},
 
-      constructor: function (options1) {
-          this.numberOfInputs = options1.length;
-          this.selectOptions = options1;
+      constructor: function (options1,itms) {
+          this.numberOfInputs = itms.length;
+          this.selectOptions = itms;
         },
 
       postCreate: function () {
