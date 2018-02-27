@@ -253,13 +253,13 @@
 }
 
 .DartTheme .jimu-widget-DistanceAndDirection .drawPointBtn:hover {
-    background: url(../images/draw_black_hover.png);
+    background: url(../images/draw_white_hover.png);
     background-repeat: no-repeat;
     background-color: transparent;
 }
 
 .DartTheme .jimu-widget-DistanceAndDirection .drawPointBtn-active{
-  background: url(../images/draw_black_hover.png);
+  background: url(../images/draw_white_hover.png);
     background-repeat: no-repeat;
     background-color: transparent;
 }
