@@ -206,6 +206,7 @@ define([
       
       _createValueField: function (td) {
         var numberField = new NumberTextBox({
+          style: 'height: 24px;',
           id: dijitRegistry.getUniqueId('ntb'),
           required: "true",
           placeHolder: this.nls.valueText,
