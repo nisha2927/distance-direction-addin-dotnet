@@ -4,6 +4,7 @@ define([
   'dojo/_base/declare',
   'dojo/_base/array',
   'dojo/_base/lang',
+  'dojo/dom-class',
   'dojo/Stateful',
   'dojo/Deferred',
   'esri/geometry/Point',
@@ -17,6 +18,7 @@ define([
   dojoDeclare,
   dojoArray,
   dojoLang,
+  dojoDomClass,
   dojoStateful,
   DojoDeferred,
   EsriPoint,
@@ -123,6 +125,10 @@ var mo = dojoDeclare([dojoStateful], {
             style: "width: 400px",
             hasSkipCheckBox: false
           });
+          
+          if (this.appConfig.theme.name === 'DartTheme') {
+            dojoDomClass.add(dialog.domNode, 'dartThemeClaroDijitTooltipContainerOverride');
+          }
 
           dialog.show().then(dojoLang.hitch(this, function () {
             var singleMatch = dojoArray.filter(itm, function (singleItm) {

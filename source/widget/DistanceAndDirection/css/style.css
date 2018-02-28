@@ -236,6 +236,12 @@
     background-image: url('./images/tooltip.png');    
 }
 
+.claro .dartThemeClaroDijitTooltipContainerOverride .dijitDialogPaneContent {
+    background-color: #222;
+    border: 0px solid #9a9a9a;
+    color: #fff;
+}
+
 
 /**
  * Coordinate Format Dialog
@@ -307,5 +313,7 @@
     background-color: transparent !important;
     font-size: 12px;
 }
+
+
 
 
