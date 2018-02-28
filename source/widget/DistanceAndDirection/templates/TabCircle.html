@@ -1,6 +1,5 @@
 <div class="tabPanel" data-dojo-attach-point="circleContainer">
     <div class="controls">
-
         <div class="controlGroup">
             <label>${nls.circleTitle}</label>
             <div class="controlItem">
@@ -10,18 +9,17 @@
                 </select>
             </div>
         </div>
-
         <div class="controlGroup">
             <label data-dojo-attach-point="coordInputLabel">${nls.centerPointLabel}</label>
             <div class="controlItem">
                 <input class="jimu-input coordInput" data-dojo-attach-point="startPointCoords" placeholder="${nls.startPointPlaceHolderLabel}" />
                 <div class="controlItem paddedLeft">
-                  <div class='add-with-icon'>
-                    <span title="${nls.formatInputLabel}" class="jimu-icon jimu-icon-setting" data-dojo-attach-point="coordinateFormatButton"></span>
-                  </div>
-                  <div class='add-with-icon'>
-                    <div title="${nls.drawCircleLabel}" class="drawPointBtn" data-dojo-attach-point="addPointBtn"></div>
-                  </div>
+                    <div class='add-with-icon'>
+                        <span title="${nls.formatInputLabel}" class="jimu-icon settingBtn" data-dojo-attach-point="coordinateFormatButton"></span>
+                    </div>
+                    <div class='add-with-icon'>
+                        <div title="${nls.drawCircleLabel}" class="drawPointBtn" data-dojo-attach-point="addPointBtn"></div>
+                    </div>
                 </div>
             </div>
             <div class="controlGroup">
@@ -29,16 +27,15 @@
                 <label data-dojo-attach-point="interactiveLabel">${nls.createCircleInteractivelyLabel}</label>
             </div>
         </div>
-
         <div class="controlGroup">
             <label data-dojo-attach-point="radiusDiameterLabel">${nls.radiusLabel}</label>
             <div class="controlItem" data-dojo-attach-point="radiusInputDiv">
                 <input
+                  style="width: 150px"
                   data-dojo-type='dijit/form/NumberTextBox'
                   required="true" value="1000" data-dojo-props="constraints: {min: 1}"
                   data-dojo-attach-point="radiusInput">
                 </input>
-
                 <select style="width: 100px" class="controlSpace noResize" data-dojo-type="dijit/form/Select" data-dojo-attach-point="lengthUnitDD">
                     <option value="feet">${nls.units.feet}</option>
                     <option value="kilometers">${nls.units.kilometers}</option>
@@ -49,13 +46,12 @@
                 </select>
             </div>
         </div>
-
         <div class="controlGroup" data-dojo-attach-point='distCalcControlDiv'>
-              <div data-dojo-attach-point='distCalcControl' data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Distance Calculator', open: false">
+            <div data-dojo-attach-point='distCalcControl' data-dojo-type="dijit/TitlePane" data-dojo-props="title: 'Distance Calculator', open: false">
                 <div class="controlGroup">
                     <label>${nls.timeLabel}<label>
                         <div class="controlItem">
-                            <input style='width: 168px;'
+                            <input style='width: 126px;'
                               data-dojo-type='dijit/form/NumberTextBox'
                               required="true" value="1" data-dojo-props="
                               constraints: {min: 1}"
@@ -71,7 +67,7 @@
                 <div class="controlGroup">
                     <label>${nls.rateLabel}<label>
                         <div class="controlItem">
-                            <input style='width: 168px;'
+                            <input style='width: 126px;'
                               data-dojo-type='dijit/form/NumberTextBox'
                               required="true" value="1" data-dojo-props="
                               constraints: {min: 1}"
@@ -93,11 +89,9 @@
                 </div>
             </div>
         </div>
-
         <div class="buttonContainer">
-          <div class='jimu-btn jimu-state-disabled' data-dojo-attach-point='okButton' data-dojo-attach-event="onclick: okButtonClicked">${nls.common.ok}</div>
-          <div class='jimu-btn' data-dojo-attach-point='clearGraphicsButton'>${nls.clearGraphicsLabel}</div>
+            <div class='jimu-btn jimu-state-disabled' data-dojo-attach-point='okButton' data-dojo-attach-event="onclick: okButtonClicked">${nls.common.ok}</div>
+            <div class='jimu-btn' data-dojo-attach-point='clearGraphicsButton'>${nls.clearGraphicsLabel}</div>
         </div>
-
     </div>
 </div>

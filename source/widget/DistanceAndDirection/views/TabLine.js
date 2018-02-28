@@ -372,10 +372,12 @@ define([
         if (this.interactiveLine.checked) {
           dojoDomClass.add(this.addPointBtnEndDiv, 'controlGroupHidden');
           this.addPointBtnStart.title = this.nls.drawLineLabel;
+          this.addPointBtnEnd.hidden = true;
         } else {
           this.coordToolEnd.clear();
           this.addPointBtnStart.title = this.nls.addPointLabel;
           dojoDomClass.remove(this.addPointBtnEndDiv, 'controlGroupHidden');
+          this.addPointBtnEnd.hidden = false;
         }
         this.checkValidInputs();
       },
@@ -392,19 +394,20 @@ define([
           this.interactiveLine.disabled = false;
           dojoDomClass.remove(this.addPointBtnEndDiv, 'controlGroupHidden');
           dojoDomClass.remove(this.interactiveLabel, 'disabledLabel');
+          this.addPointBtnEnd.hidden = false;
         } else {
           this.addPointBtnStart.title = this.nls.addPointLabel;
           this.interactiveLine.disabled = true;
           if (this.interactiveLine.checked) {
             this.interactiveLine.checked = false;
           }
-
           this.coordToolEnd.set('value', '');
           this.coordToolEnd.set('disabled', true);
           this.angleInput.set('disabled', false);
           this.lengthInput.set('disabled', false);
           dojoDomClass.add(this.addPointBtnEndDiv, 'controlGroupHidden');
           dojoDomClass.add(this.interactiveLabel, 'disabledLabel');
+          this.addPointBtnEnd.hidden = true;
         }
         this.checkValidInputs();
       },

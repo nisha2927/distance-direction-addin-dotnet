@@ -1,64 +1,56 @@
 <div class="tabPanel" data-dojo-attach-point="rangeContainer">
-
     <div class="controls">
-
-      <div class="controlGroup">
-          <label>${nls.lineTypeLabel}</label>
-          <div class="controlItem">
-              <select data-dojo-attach-point="rangeType" style="width: 225px" data-dojo-type="dijit/form/Select">
-                  <option selected="selected" value="Interactive">${nls.interactiveLabel}</option>
-                  <option value="Fixed">${nls.fixedLabel}</option>
-                  <option value="Origin">${nls.originLabel}</option>
-                  <option value="Cumulative">${nls.cumulativeLabel}</option>
-              </select>
-          </div>
-      </div>
-
-      <div class="controlGroup">
-          <label data-dojo-attach-point='rangeCenterLabel'>${nls.centerPointLabel}</label>
-          <div class="controlItem">
-              <input class="jimu-input coordInput" placeholder="${nls.startPointPlaceHolderLabel}" data-dojo-attach-point="rangeCenter" />
-              <div class="controlItem paddedLeft">
-                  <div class='add-with-icon'>
-                      <span title="${nls.formatInputLabel}" class="jimu-icon jimu-icon-setting" data-dojo-attach-point="coordinateFormatButton"></span>
-                  </div>
-                  <div class='add-with-icon'>
-                      <div title="${nls.addPointLabel}" class="drawPointBtn" data-dojo-attach-point="addPointBtn"></div>
-                  </div>
-              </div>
-          </div>
-      </div>
-
+        <div class="controlGroup">
+            <label>${nls.lineTypeLabel}</label>
+            <div class="controlItem">
+                <select data-dojo-attach-point="rangeType" style="width: 225px" data-dojo-type="dijit/form/Select">
+                    <option selected="selected" value="Interactive">${nls.interactiveLabel}</option>
+                    <option value="Fixed">${nls.fixedLabel}</option>
+                    <option value="Origin">${nls.originLabel}</option>
+                    <option value="Cumulative">${nls.cumulativeLabel}</option>
+                </select>
+            </div>
+        </div>
+        <div class="controlGroup">
+            <label data-dojo-attach-point='rangeCenterLabel'>${nls.centerPointLabel}</label>
+            <div class="controlItem">
+                <input class="jimu-input coordInput" placeholder="${nls.startPointPlaceHolderLabel}" data-dojo-attach-point="rangeCenter" />
+                <div class="controlItem paddedLeft">
+                    <div class='add-with-icon'>
+                        <span title="${nls.formatInputLabel}" class="jimu-icon settingBtn" data-dojo-attach-point="coordinateFormatButton"></span>
+                    </div>
+                    <div class='add-with-icon'>
+                        <div title="${nls.addPointLabel}" class="drawPointBtn" data-dojo-attach-point="addPointBtn"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="controlGroup controlGroupHidden" data-dojo-attach-point="numRingsContainer">
             <label>${nls.numberOfRingsLabel}</label>
             <div class="controlItem" data-dojo-attach-point="numRingsDiv">
                 <input data-dojo-attach-point="numRingsInput"
-                       type="text"
-                       data-dojo-type="dijit/form/NumberTextBox"
-                       name="numRings"
-                       required="true" ,
-                       value="5"
-                       data-dojo-props="constraints:{
-                                        min:1,
-                                        max: 100,
-                                        places: 0
-                                      }" />
+                   type="text"
+                   data-dojo-type="dijit/form/NumberTextBox"
+                   name="numRings"
+                   required="true" ,
+                   value="5"
+                   data-dojo-props="constraints:{min:1, max: 100, places: 0}" />
             </div>
         </div>
-
         <div class="controlGroup controlGroupHidden" data-dojo-attach-point="distancebetweenRingsContainer">
             <label>${nls.distanceBetweenRingsLabel}</label>
             <div class="controlItem" data-dojo-attach-point="ringIntervalDiv">
                 <input
-                  data-dojo-type="dijit/form/NumberTextBox"
-                  required="true" value="1000" data-dojo-props="
-                  constraints:{places: 2},
-                  invalidMessage: '${nls.ringsDecimalErrorMessage}'"
-                  data-dojo-attach-point="ringIntervalInput" />
+                    style="width: 122px"
+                    data-dojo-type="dijit/form/NumberTextBox"
+                    required="true" value="1000" data-dojo-props="
+                    constraints:{places: 2},
+                    invalidMessage: '${nls.ringsDecimalErrorMessage}'"
+                    data-dojo-attach-point="ringIntervalInput" />
                 <select data-dojo-attach-point="ringIntervalUnitsDD"
-                        style="width: 100px"
-                        class="controlSpace noResize"
-                        data-dojo-type="dijit/form/Select">
+                    style="width: 100px"
+                    class="controlSpace noResize"
+                    data-dojo-type="dijit/form/Select">
                     <option value="feet">${nls.units.feet}</option>
                     <option value="kilometers">${nls.units.kilometers}</option>
                     <option value="miles">${nls.units.miles}</option>
@@ -68,7 +60,6 @@
                 </select>
             </div>
         </div>
-
         <div class="controlGroup" data-dojo-attach-point="distanceUnitsContainer">
             <label>${nls.distanceUnitsLabel}</label>
             <div class="controlItem">
@@ -84,16 +75,13 @@
                 </select>
             </div>
         </div>
-
-
         <div class="controlGroup controlGroupHidden" data-dojo-attach-point="distanceTableContainer">
-          <div class="add-with-icon"  data-dojo-attach-point="btnAddDistance">
-            <span class="jimu-icon jimu-icon-add" data-dojo-attach-point="btnAirframeIcon"></span>
-            <span class="add-label">${nls.distancesLabel}</span>
-          </div>
-          <div data-dojo-attach-point="distanceTable" style="width: 225px"></div>            
+            <div class="add-with-icon"  data-dojo-attach-point="btnAddDistance">
+                <span class="jimu-icon jimu-icon-add" data-dojo-attach-point="btnAirframeIcon"></span>
+                <span class="add-label">${nls.distancesLabel}</span>
+            </div>
+            <div data-dojo-attach-point="distanceTable" style="width: 225px"></div>            
         </div>
-
         <div class="controlGroup" data-dojo-attach-point="numRadialsContainer">
             <label>${nls.numberOfRadialsLabel}</label>
             <div class="controlItem" data-dojo-attach-point="numRadialsInputDiv">
@@ -104,11 +92,9 @@
                   data-dojo-attach-point="numRadialsInput" />
             </div>
         </div>
-
         <div class="buttonContainer" data-dojo-attach-point="buttonContainer">
-          <div class='jimu-btn jimu-state-disabled' data-dojo-attach-point='okButton' data-dojo-attach-event="onclick: okButtonClicked">${nls.common.ok}</div>
-          <div class='jimu-btn' data-dojo-attach-point='clearGraphicsButton'>${nls.clearGraphicsLabel}</div>
+            <div class='jimu-btn jimu-state-disabled' data-dojo-attach-point='okButton' data-dojo-attach-event="onclick: okButtonClicked">${nls.common.ok}</div>
+            <div class='jimu-btn' data-dojo-attach-point='clearGraphicsButton'>${nls.clearGraphicsLabel}</div>
         </div>
-
     </div>
 </div>

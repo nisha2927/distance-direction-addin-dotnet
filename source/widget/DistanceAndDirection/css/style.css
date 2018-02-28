@@ -47,7 +47,7 @@
 
 .jimu-widget-DistanceAndDirection .controls {
     display: table;
-    margin: 0 auto;
+    padding-left: 15px;
 }
 
 .jimu-widget-DistanceAndDirection .buttonContainer {
@@ -73,7 +73,7 @@
 .jimu-widget-DistanceAndDirection .controlGroup .warning{
     color: #F00;
     font-weight: bold;
-    width: 260px;
+    width: 240px;
     display: inline-block;
 }
 
@@ -94,7 +94,9 @@
     margin-left: 6px;
 }
 
-.jimu-widget-DistanceAndDirection  .noResize .dijitSelectLabel, .jimu-widget-DistanceAndDirection .noResize .dijitTextBox .dijitInputInner, .jimu-widget-DistanceAndDirection  .noResize.dijitValidationTextBox .dijitValidationContainer {
+.jimu-widget-DistanceAndDirection  .noResize .dijitSelectLabel, 
+.jimu-widget-DistanceAndDirection .noResize .dijitTextBox .dijitInputInner, 
+.jimu-widget-DistanceAndDirection  .noResize.dijitValidationTextBox .dijitValidationContainer {
     text-overflow: ellipsis;
     overflow: hidden;
     width: 58px;
@@ -121,7 +123,7 @@
 }
 
 .jimu-widget-DistanceAndDirection .drawPointBtn {
-  background: url(../images/draw_black.png);
+  background: url(./images/draw_black.png);
   background-repeat: no-repeat;
   background-color: transparent;
   width: 12px;
@@ -129,15 +131,27 @@
 }
 
 .jimu-widget-DistanceAndDirection .drawPointBtn:hover {
-    background: url(../images/draw_black_hover.png);
+    background: url(./images/draw_black_hover.png);
     background-repeat: no-repeat;
     background-color: transparent;
 }
 
 .jimu-widget-DistanceAndDirection .drawPointBtn-active{
-    background: url(../images/draw_black_hover.png);
+    background: url(./images/draw_black_hover.png);
     background-repeat: no-repeat;
     background-color: transparent;
+}
+
+.jimu-widget-DistanceAndDirection .settingBtn {
+    background: url(./images/settings_black.png);
+    background-repeat: no-repeat;
+    background-color: transparent;
+    width: 15px;
+    height: 15px;
+}
+
+.jimu-widget-DistanceAndDirection .settingBtn:hover {
+    background: url('./images/settings_black_hover.png');
 }
 
 .jimu-widget-DistanceAndDirection .add-with-icon .draw .hidden {
@@ -185,7 +199,8 @@
     background-color: #3c2d2d !important;
 }
 
-.DartTheme .jimu-widget-DistanceAndDirection .dijitTitlePaneTitleOpen, .DartTheme .jimu-widget-DistanceAndDirection .dijitTitlePaneTitleFixedOpen {
+.DartTheme .jimu-widget-DistanceAndDirection .dijitTitlePaneTitleOpen, 
+.DartTheme .jimu-widget-DistanceAndDirection .dijitTitlePaneTitleFixedOpen {
     background-color: #272727;
 }
 
@@ -218,7 +233,7 @@
 }
 
 .claro .dartThemeClaroDijitTooltipContainerOverride .dijitTooltipConnector {    
-    background-image: url(images/tooltip.png);    
+    background-image: url('./images/tooltip.png');    
 }
 
 
@@ -240,12 +255,8 @@
     margin-top: 6px;
 }
 
-.DartTheme  .jimu-widget-cw .cpbtn {
-    background: url(../images/copy.png);
-}
-
 .DartTheme  .jimu-widget-DistanceAndDirection .drawPointBtn {
-    background: url(../images/draw_black.png);
+    background: url('./images/draw_white.png');
     background-repeat: no-repeat;
     background-color: transparent;
     width: 12px;
@@ -253,22 +264,33 @@
 }
 
 .DartTheme .jimu-widget-DistanceAndDirection .drawPointBtn:hover {
-    background: url(../images/draw_white_hover.png);
+    background: url('./images/draw_white_hover.png');
     background-repeat: no-repeat;
     background-color: transparent;
 }
 
 .DartTheme .jimu-widget-DistanceAndDirection .drawPointBtn-active{
-  background: url(../images/draw_white_hover.png);
+  background: url('./images/draw_white_hover.png');
     background-repeat: no-repeat;
     background-color: transparent;
+}
+
+.DartTheme .jimu-widget-DistanceAndDirection .settingBtn {
+    background: url(./images/settings_white.png);
+    background-repeat: no-repeat;
+    background-color: transparent;
+}
+
+.DartTheme .jimu-widget-DistanceAndDirection .settingBtn:hover {
+    background: url('./images/settings_white_hover.png');
 }
 
 .DartTheme .jimu-widget-DistanceAndDirection .disabledLabel {
     color: #7b7b7b !important;
 }
 
-.DartTheme .jimu-simple-table .simple-table-row .editable-div, .jimu-simple-table .simple-table-row .normal-text-div {
+.DartTheme .jimu-simple-table .simple-table-row .editable-div, 
+.jimu-simple-table .simple-table-row .normal-text-div {
     color: #FFFFFF !important;
 }
 
@@ -285,4 +307,5 @@
     background-color: transparent !important;
     font-size: 12px;
 }
+
 
