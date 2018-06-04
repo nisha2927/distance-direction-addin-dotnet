@@ -189,7 +189,14 @@
     <AddInContent Include="DarkImages\distance-direction-16.png" />
     <AddInContent Include="DarkImages\distance-direction-32.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Data\Circles.lyrx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Data\Lines.lyrx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Data\DistanceAndDirection.lpkx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

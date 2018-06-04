@@ -174,6 +174,36 @@ namespace ProAppDistanceAndDirectionModule.Models
                 success = CheckResultAndReportMessages(result, gpTool, arguments);
             });
 
+            if (!success)
+                return success; // stop here
+
+            await QueuedTask.Run(async () =>
+            {
+                List<object> arguments = new List<object>();
+
+                string addedLayerName = System.IO.Path.GetFileNameWithoutExtension(outputPath);
+                string layerPackage = layerName + ".lyrx";
+                string layerPath = System.IO.Path.Combine(Models.FeatureClassUtils.AddinAssemblyLocation(), "Data", layerPackage);
+
+                // TODO: if the user moves or renames this group, this layer name may no longer be valid
+                arguments.Add(addedLayerName);
+                arguments.Add(layerPath);
+
+                var parameters = Geoprocessing.MakeValueArray(arguments.ToArray());
+                var environments = Geoprocessing.MakeEnvironmentArray(overwriteoutput: true);
+
+                string gpTool = "ApplySymbologyFromLayer_management";
+                IGPResult result = await Geoprocessing.ExecuteToolAsync(
+                    gpTool,
+                    parameters,
+                    environments,
+                    null,
+                    null,
+                    GPExecuteToolFlags.Default);
+
+                success = CheckResultAndReportMessages(result, gpTool, arguments);
+            });
+
             return success;
         }
 
